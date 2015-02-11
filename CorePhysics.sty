@@ -1,0 +1,1221 @@
+% atlasphysics.sty
+% Based on atlasphysics.sty for ATLAS papers
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{N4M3ZPhysics}[2014/06/08 N4M3Z Physics Specification Package]
+
+% Packages
+\RequirePackage{amsmath}
+\RequirePackage{mathrsfs} % supports RSFS fonts (\mathcal, \mathscr)
+\RequirePackage{cancel}
+\RequirePackage{xparse}
+\RequirePackage{etoolbox}
+
+% Defaults
+\providetoggle{standalone}
+\providetoggle{aliases}
+
+\providetoggle{physics}
+\providetoggle{siunitx}
+\providetoggle{glossaries}
+\providetoggle{xspace}
+\providetoggle{upgreek}
+
+\togglefalse{standalone}
+\togglefalse{aliases}
+
+\togglefalse{physics}
+\togglefalse{siunitx}
+\togglefalse{glossaries}
+\togglefalse{xspace}
+\togglefalse{upgreek}
+
+\DeclareOption{standalone} { \toggletrue{standalone} }
+\DeclareOption{aliases}    { \toggletrue{aliases}    }
+
+\DeclareOption{physics}    { \toggletrue{physics}    }
+\DeclareOption{siunitx}    { \toggletrue{siunitx}    }
+\DeclareOption{glossaries} { \toggletrue{glossaries} }
+\DeclareOption{xspace}     { \toggletrue{xspace}     }
+\DeclareOption{upgreek}    { \toggletrue{upgreek}    }
+
+\ExecuteOptions{siunitx,physics}
+
+\ProcessOptions\relax
+
+%% ================================================================================================
+\iftoggle{physics}    {\RequirePackage{physics}   } {}
+\iftoggle{siunitx}    {\RequirePackage{siunitx}   } {}
+\iftoggle{glossaries} {\RequirePackage{glossaries}} {}
+\iftoggle{xspace}     {\RequirePackage{xspace}    } {}
+\iftoggle{upgreek}
+{%
+  \ifPDFTeX
+    \RequirePackage{upgreek}
+  \else
+    \ifLuaTeX
+      \AtBeginDocument%
+      {%
+        \DeclareRobustCommand{\upalpha}      {\protect\mathrm{\alpha}}
+        \DeclareRobustCommand{\upbeta}       {\protect\mathrm{\beta}}
+        \DeclareRobustCommand{\upgamma}      {\protect\mathrm{\gamma}}
+        \DeclareRobustCommand{\updelta}      {\protect\mathrm{\delta}}
+        \DeclareRobustCommand{\upepsilon}    {\protect\mathrm{\epsilon}}
+        \DeclareRobustCommand{\upzeta}       {\protect\mathrm{\zeta}}
+        \DeclareRobustCommand{\upeta}        {\protect\mathrm{\eta}}
+        \DeclareRobustCommand{\uptheta}      {\protect\mathrm{\theta}}
+        \DeclareRobustCommand{\upiota}       {\protect\mathrm{\iota}}
+        \DeclareRobustCommand{\upkappa}      {\protect\mathrm{\kappa}}
+        \DeclareRobustCommand{\uplambda}     {\protect\mathrm{\lambda}}
+        \DeclareRobustCommand{\upmu}         {\protect\mathrm{\mu}}
+        \DeclareRobustCommand{\upnu}         {\protect\mathrm{\nu}}
+        \DeclareRobustCommand{\upxi}         {\protect\mathrm{\xi}}
+        \DeclareRobustCommand{\uppi}         {\protect\mathrm{\pi}}
+        \DeclareRobustCommand{\uprho}        {\protect\mathrm{\rho}}
+        \DeclareRobustCommand{\upsigma}      {\protect\mathrm{\sigma}}
+        \DeclareRobustCommand{\uptau}        {\protect\mathrm{\tau}}
+        \DeclareRobustCommand{\upupsilon}    {\protect\mathrm{\upsilon}}
+        \DeclareRobustCommand{\upphi}        {\protect\mathrm{\phi}}
+        \DeclareRobustCommand{\upchi}        {\protect\mathrm{\chi}}
+        \DeclareRobustCommand{\uppsi}        {\protect\mathrm{\psi}}
+        \DeclareRobustCommand{\upomega}      {\protect\mathrm{\omega}}
+        \DeclareRobustCommand{\upvarepsilon} {\protect\mathrm{\varepsilon}}
+        \DeclareRobustCommand{\upvartheta}   {\protect\mathrm{\vartheta}}
+        \DeclareRobustCommand{\upvarpi}      {\protect\mathrm{\varpi}}
+        \DeclareRobustCommand{\upvarrho}     {\protect\mathrm{\varrho}}
+        \DeclareRobustCommand{\upvarsigma}   {\protect\mathrm{\varsigma}}
+        \DeclareRobustCommand{\upvarphi}     {\protect\mathrm{\varphi}}
+        \DeclareRobustCommand{\Upgamma}      {\protect\mathrm{\Gamma}}
+        \DeclareRobustCommand{\Updelta}      {\protect\mathrm{\Delta}}
+        \DeclareRobustCommand{\Uptheta}      {\protect\mathrm{\Theta}}
+        \DeclareRobustCommand{\Uplambda}     {\protect\mathrm{\Lambda}}
+        \DeclareRobustCommand{\Upxi}         {\protect\mathrm{\Xi}}
+        \DeclareRobustCommand{\Uppi}         {\protect\mathrm{\Pi}}
+        \DeclareRobustCommand{\Upsigma}      {\protect\mathrm{\Sigma}}
+        \DeclareRobustCommand{\Upupsilon}    {\protect\mathrm{\Upsilon}}
+        \DeclareRobustCommand{\Upphi}        {\protect\mathrm{\Phi}}
+        \DeclareRobustCommand{\Uppsi}        {\protect\mathrm{\Psi}}
+        \DeclareRobustCommand{\Upomega}      {\protect\mathrm{\Omega}}
+      }%
+    \fi
+  \fi
+}%
+
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Global                                                            |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+\iftoggle{xspace}%
+{%
+    \DeclareDocumentCommand {\term} { m } {\ensuremath{#1}\xspace}%
+
+    \nottoggle{siunitx}%
+    {%
+        \DeclareDocumentCommand {\unit} { m } {\ifmmode{\ \text{#1} }%
+                                               \else   {#1}%
+                                               \fi\xspace}
+    }
+}{%
+    \DeclareDocumentCommand {\term} { m } {\ensuremath{#1}}%
+
+    \nottoggle{siunitx}%
+    {%
+        \DeclareDocumentCommand {\unit} { m } {\ifmmode{\ \text{#1} }%
+                                               \else   {#1}%
+                                               \fi}
+    }
+}
+
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Mathematics                                                       |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+\iftoggle{physics}%
+{%
+    \let \vec \vb
+}{%
+    \DeclareDocumentCommand {\vec} { m } {\term{\mathbf{#1}}}
+
+    \DeclarePairedDelimiter {\abs} {\lvert}{\rvert} % amsmath
+
+    \DeclareDocumentCommand {\dd } { o }
+    {
+        \IfNoValueTF {#1}
+          {\term{\mathrm{d}}}
+          {\term{\mathrm{d}^{#1}}}
+    }
+
+    \DeclareDocumentCommand {\pd } { o }
+    {
+        \IfNoValueTF {#1}
+          {\term{\partial}}
+          {\term{\partial^{#1}}}
+    }
+
+    \DeclareDocumentCommand {\dv } { m m o }
+    {
+        \IfNoValueTF {#3}
+            {\term{ \frac{ \dd     #1 }{ \dd #2      } }}
+            {\term{ \frac{ \dd[#3] #1 }{ \dd #2^{#3} } }}
+    }
+
+    \DeclareDocumentCommand {\pv } { m m o }
+    {
+        \IfNoValueTF {#3}
+            {\term{ \frac{ \pd     #1 }{ \pd #2      } }}
+            {\term{ \frac{ \pd[#3] #1 }{ \pd #2^{#3} } }}
+    }
+}
+
+\DeclareDocumentCommand {\mat} { m } {\term{\mathbb{#1}}}
+
+\DeclareDocumentCommand {\dt} { o } {\IfNoValueTF {#1} {\term{ \dd t }} {\term{ \dd[#1] t }} } % Usage: dt[2] ... dt^2
+\DeclareDocumentCommand {\dx} { o } {\IfNoValueTF {#1} {\term{ \dd x }} {\term{ \dd[#1] x }} } % Usage: dx[2] ... dx^2
+\DeclareDocumentCommand {\dy} { o } {\IfNoValueTF {#1} {\term{ \dd y }} {\term{ \dd[#1] y }} } % Usage: dy[2] ... dy^2
+\DeclareDocumentCommand {\dz} { o } {\IfNoValueTF {#1} {\term{ \dd z }} {\term{ \dd[#1] z }} } % Usage: dz[2] ... dz^2
+
+\DeclareDocumentCommand {\dmu} { s } {\IfBooleanTF {#1} {\term{\partial^\mu}} {\term{\partial_\mu}}}
+\DeclareDocumentCommand {\dnu} { s } {\IfBooleanTF {#1} {\term{\partial^\nu}} {\term{\partial_\nu}}}
+
+\DeclareDocumentCommand {\xmu} { s } {\IfBooleanTF {#1} {\term{x_\mu}} {\term{x^\mu}}}
+\DeclareDocumentCommand {\xnu} { s } {\IfBooleanTF {#1} {\term{x_\nu}} {\term{x^\nu}}}
+
+\DeclareDocumentCommand {\pmu} { s } {\IfBooleanTF {#1} {\term{p_\mu}} {\term{p^\mu}}}
+\DeclareDocumentCommand {\pnu} { s } {\IfBooleanTF {#1} {\term{p_\nu}} {\term{p^\nu}}}
+
+\DeclareDocumentCommand {\jmu} { s } {\IfBooleanTF {#1} {\term{j_\mu}} {\term{j^\mu}}}
+\DeclareDocumentCommand {\jnu} { s } {\IfBooleanTF {#1} {\term{j_\nu}} {\term{j^\nu}}}
+
+\DeclareDocumentCommand {\kmu} { s } {\IfBooleanTF {#1} {\term{k_\mu}} {\term{k^\mu}}}
+\DeclareDocumentCommand {\knu} { s } {\IfBooleanTF {#1} {\term{k_\nu}} {\term{k^\nu}}}
+
+\DeclareDocumentCommand {\Amu} { s } {\IfBooleanTF {#1} {\term{A_\mu}} {\term{A^\mu}}}
+\DeclareDocumentCommand {\Bmu} { s } {\IfBooleanTF {#1} {\term{B_\mu}} {\term{B^\mu}}}
+\DeclareDocumentCommand {\Wmu} { s } {\IfBooleanTF {#1} {\term{W_\mu}} {\term{W^\mu}}}
+\DeclareDocumentCommand {\Gmu} { s } {\IfBooleanTF {#1} {\term{G_\mu}} {\term{G^\mu}}}
+\DeclareDocumentCommand {\Pmu} { s } {\IfBooleanTF {#1} {\term{P_\mu}} {\term{P^\mu}}}
+
+\DeclareDocumentCommand {\gmunu} { s } {\IfBooleanTF {#1} {\term{g_{\mu\nu}}} {\term{g^{\mu\nu}}}}
+\DeclareDocumentCommand {\Fmunu} { s } {\IfBooleanTF {#1} {\term{F_{\mu\nu}}} {\term{F^{\mu\nu}}}}
+\DeclareDocumentCommand {\Gmunu} { s } {\IfBooleanTF {#1} {\term{G_{\mu\nu}}} {\term{G^{\mu\nu}}}}
+
+\DeclareDocumentCommand {\chisquare} {} {\term{\chi^2}}
+
+\DeclareDocumentCommand {\OR}  {} {\textsc{OR}\xspace}
+\DeclareDocumentCommand {\AND} {} {\textsc{AND}\xspace}
+
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Units                                                             |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+% Constants
+\iftoggle{siunitx}%
+{%
+    \DeclareDocumentCommand {\numpct   } { m } {\SI{#1}{percent}}
+    \DeclareDocumentCommand {\SIpct    } { m } {\SI{#1}{\percent}}
+
+    \DeclareDocumentCommand {\numarea   } { m m } {\numrange[range-phrase=\ensuremath{\times}]{#1}{#2}}
+    \DeclareDocumentCommand {\numrangein} { m m } {\numrange[range-phrase=in]{#1}{#2}}
+    \DeclareDocumentCommand {\numresp   } { m m } {\numrange[range-phrase=\,,parse-numbers = false]{#1}{(#2)}}
+
+    \DeclareDocumentCommand {\SIarea   } { m m m } {\SIrange[range-phrase=\ensuremath{\times}]{#1}{#2}{#3}}
+    \DeclareDocumentCommand {\SIrangein} { m m m } {\SIrange[range-phrase=in]{#1}{#2}{#3}}
+    \DeclareDocumentCommand {\SIresp   } { m m m } {\SIrange[range-phrase=\,,parse-numbers = false]{#1}{(#2)\,}{#3}}
+
+    % Fundamental
+    \DeclareDocumentCommand {\elementarycharge} {} {\term{e}}%
+
+    % Space
+    % Already defined in the latest version:
+    %\DeclareSIUnit {\m}        {\metre}
+    %\DeclareSIUnit {\cm}       {\centi\metre}
+    %\DeclareSIUnit {\mm}       {\milli\metre
+
+    \DeclareSIUnit {\micron}   {\micro\metre}
+
+    \DeclareSIUnit {\rad } {rad}
+    \DeclareSIUnit {\mrad} {\milli\rad}
+    \DeclareSIUnit {\urad} {\micro\rad}
+
+    % Velocity
+    \DeclareSIUnit {\mps} {\metre\per\second}
+    \DeclareSIUnit {\kph} {\kilo\metre\per\hour}
+
+    % High energy physics
+    \DeclareSIUnit {\gauss} {G}
+
+    \DeclareSIUnit {\eVc } {\eV\per\clight}
+    \DeclareSIUnit {\keVc} {\eV\per\clight}
+    \DeclareSIUnit {\MeVc} {\eV\per\clight}
+    \DeclareSIUnit {\GeVc} {\eV\per\clight}
+    \DeclareSIUnit {\TeVc} {\eV\per\clight}
+
+    \DeclareSIUnit {\eVcc } {\eV\per\clight^2}
+    \DeclareSIUnit {\keVcc} {\eV\per\clight^2}
+    \DeclareSIUnit {\MeVcc} {\eV\per\clight^2}
+    \DeclareSIUnit {\GeVcc} {\eV\per\clight^2}
+    \DeclareSIUnit {\TeVcc} {\eV\per\clight^2}
+
+    % Cross section
+    \DeclareSIUnit {\millibarn} {\milli\barn}
+    \DeclareSIUnit {\microbarn} {\micro\barn}
+    \DeclareSIUnit {\nanobarn } {\nano\barn}
+    \DeclareSIUnit {\picobarn } {\pico\barn}
+    \DeclareSIUnit {\femtobarn} {\femto\barn}
+    \DeclareSIUnit {\attobarn } {\atto\barn}
+    \DeclareSIUnit {\zeptobarn} {\zepto\barn}
+    \DeclareSIUnit {\yoctobarn} {\yocto\barn}
+
+    \DeclareSIUnit {\mb} {\milli\barn}
+    \DeclareSIUnit {\ub} {\micro\barn}
+    \DeclareSIUnit {\nb} {\nano\barn}
+    \DeclareSIUnit {\pb} {\pico\barn}
+    \DeclareSIUnit {\fb} {\femto\barn}
+    \DeclareSIUnit {\ab} {\atto\barn}
+    \DeclareSIUnit {\zb} {\zepto\barn}
+    \DeclareSIUnit {\yb} {\yocto\barn}
+
+    % Luminosity
+    \DeclareSIUnit {\imb} {\per\milli\barn}
+    \DeclareSIUnit {\iub} {\per\micro\barn}
+    \DeclareSIUnit {\inb} {\per\nano\barn}
+    \DeclareSIUnit {\ipb} {\per\pico\barn}
+    \DeclareSIUnit {\ifb} {\per\femto\barn}
+    \DeclareSIUnit {\iab} {\per\atto\barn}
+    \DeclareSIUnit {\izb} {\per\zepto\barn}
+    \DeclareSIUnit {\iyb} {\per\yocto\barn}
+
+    % Provided from siunitx documentation
+    % Astronomy
+    \DeclareSIUnit {\parsec   } {pc}
+    \DeclareSIUnit {\lightyear} {ly}
+
+    % Chemical engineering
+    \DeclareSIUnit {\gmol } {g\text{-}mol}
+    \DeclareSIUnit {\kgmol} {kg\text{-}mol}
+    \DeclareSIUnit {\lbmol} {lb\text{-}mol}
+
+    % Chemistry
+    \DeclareSIUnit {\molar} {\mole\per\cubic\deci\metre}
+    \DeclareSIUnit {\Molar} {\textsc{m}}
+    \DeclareSIUnit {\torr}  {torr}
+
+    % Computing
+    \DeclareSIUnit {\kB} {\kilo\byte}
+    \DeclareSIUnit {\MB} {\mega\byte}
+    \DeclareSIUnit {\GB} {\giga\byte}
+    \DeclareSIUnit {\TB} {\tera\byte}
+    \DeclareSIUnit {\PB} {\peta\byte}
+    \DeclareSIUnit {\EB} {\exa\byte}
+
+    \DeclareSIUnit {\kb} {\kilo\bit}
+    \DeclareSIUnit {\Mb} {\mega\bit}
+    \DeclareSIUnit {\Gb} {\giga\bit}
+
+    \DeclareSIUnit {\kbit} {\kilo\bit}
+    \DeclareSIUnit {\Mbit} {\mega\bit}
+    \DeclareSIUnit {\Gbit} {\giga\bit}
+
+    \DeclareSIUnit {\kbps} {\kilo\bit p\s}
+    \DeclareSIUnit {\Mbps} {\mega\bit p\s}
+    \DeclareSIUnit {\Gbps} {\giga\bit p\s}
+
+    \DeclareSIUnit {\kiB} {\kibi\byte}
+    \DeclareSIUnit {\MiB} {\mebi\byte}
+    \DeclareSIUnit {\GiB} {\gibi\byte}
+    \DeclareSIUnit {\TiB} {\tebi\byte}
+    \DeclareSIUnit {\PiB} {\pebi\byte}
+}{
+    \DeclareDocumentCommand {\elementarycharge} {} {\term{e}}%
+
+    % Space
+    \DeclareDocumentCommand {\m}    {} {\unit{m }}
+    \DeclareDocumentCommand {\cm}   {} {\unit{cm}}
+    \DeclareDocumentCommand {\mm}   {} {\unit{mm}}
+
+    \DeclareDocumentCommand {\micron}   {} {\unit{m}}
+
+    \DeclareDocumentCommand {\rad } {} {\unit{rad}}
+    \DeclareDocumentCommand {\mrad} {} {\unit{mrad}}
+    \DeclareDocumentCommand {\urad} {} {\unit{$\upmu$rad}}
+
+    % Velocity
+    \DeclareDocumentCommand {\mps} {\unit{mps}}
+    \DeclareDocumentCommand {\kph} {\unit{kph}}
+
+    % High energy physics
+    \DeclareDocumentCommand {\gauss} {} {\unit{G}}
+
+    \providecommand \electronvolt {e\kern -0.1em V}
+    \providecommand \eV {\unit{ \electronvolt}}
+    \providecommand \KeV{\unit{K\electronvolt}}
+    \providecommand \MeV{\unit{M\electronvolt}}
+    \providecommand \GeV{\unit{G\electronvolt}}
+    \providecommand \TeV{\unit{T\electronvolt}}
+
+    % Momentum
+    \providecommand \electronvoltc {e\kern -0.1em V/$c$}
+    \providecommand \eVc { \unit{ \electronvoltc} }
+    \providecommand \KeVc{ \unit{K\electronvoltc} }
+    \providecommand \MeVc{ \unit{M\electronvoltc} }
+    \providecommand \GeVc{ \unit{G\electronvoltc} }
+    \providecommand \TeVc{ \unit{T\electronvoltc} }
+
+    % Mass
+    \providecommand \electronvoltcc {e\kern -0.1em V/$c^2$}
+    \providecommand \eVcc {\unit{\electronvoltcc}}
+    \providecommand \KeVcc{\unit{K\electronvoltcc}}
+    \providecommand \MeVcc{\unit{M\electronvoltcc}}
+    \providecommand \GeVcc{\unit{G\electronvoltcc}}
+    \providecommand \TeVcc{\unit{T\electronvoltcc}}
+
+    % Cross section
+    \DeclareDocumentCommand {\fb} {} {\unit{fb      }} % femtobarns
+    \DeclareDocumentCommand {\pb} {} {\unit{pb      }} % picobarns
+    \DeclareDocumentCommand {\nb} {} {\unit{nb      }} % nanobarns
+    \DeclareDocumentCommand {\ub} {} {\unit{$\upmu$b}} % microbarns
+    \DeclareDocumentCommand {\mb} {} {\unit{mb      }} % millibarns
+
+    % Luminosity
+    \DeclareDocumentCommand {\ifb} {} {\unit{fb$^{-1}      $}} % Inverse femtobarns
+    \DeclareDocumentCommand {\ipb} {} {\unit{pb$^{-1}      $}} % Inverse picobarns
+    \DeclareDocumentCommand {\inb} {} {\unit{nb$^{-1}      $}} % Inverse nanobarns
+    \DeclareDocumentCommand {\iub} {} {\unit{$\upmu$b$^{-1}$}} % Inverse microbarns
+    \DeclareDocumentCommand {\imb} {} {\unit{mb$^{-1}      $}} % Inverse millibarns
+}
+
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Variables                                                         |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+% Energy
+\DeclareDocumentCommand {\Et} {} {\term{ E_\mathrm{T} }}
+
+\DeclareDocumentCommand {\sevenTeV} { s } {\IfBooleanTF {#1} {\term{\sqrt{s} = \SI{7}{\TeV}}} {\SI{7}{\TeV}\xspace}}
+\DeclareDocumentCommand {\eightTeV} { s } {\IfBooleanTF {#1} {\term{\sqrt{s} = \SI{8}{\TeV}}} {\SI{8}{\TeV}\xspace}}
+
+% Momentum
+\DeclareDocumentCommand {\pt   } {} {\term{ p_{\mathrm{T}}   }}
+\DeclareDocumentCommand {\ptsq } {} {\term{ p^2_{\mathrm{T}} }}
+\DeclareDocumentCommand {\ptll } {} {\term{ \pt (\ell \ell)  }}
+
+\DeclareDocumentCommand {\ptsum} { o o }
+{%
+    \IfNoValueTF {#1}%
+        {\term{\sum \pt}}%
+        {\IfNoValueTF {#2}%
+             {\term{\sum_{#1} \pt     }}%
+             {\term{\sum_{#1}^{#2} \pt}}%
+        }
+}
+
+\DeclareDocumentCommand {\ptsumsq} { o o }
+{
+    \IfNoValueTF {#1}%
+        {\term{\sum \ptsq}}%
+        {\IfNoValueTF {#2}%
+             {\term{\sum_{#1} \ptsq}}%
+             {\term{\sum_{#1}^{#2} \ptsq}}%
+        }
+}
+
+% Missing energy and momentum
+\DeclareDocumentCommand {\met    } {} {\term{ \cancel{\vec{E}}_\mathrm{T}     }}
+\DeclareDocumentCommand {\metrel } {} {\term{ \cancel{\vec{E}}_\mathrm{T,Rel} }}
+\DeclareDocumentCommand {\mpt    } {} {\term{ \cancel{\vec{p}}_\mathrm{T}     }}
+
+\DeclareDocumentCommand {\amet   } {} {\term{ \cancel{E}_\mathrm{T}     }}
+\DeclareDocumentCommand {\amex   } {} {\term{ \cancel{E}_\mathrm{x}     }}
+\DeclareDocumentCommand {\amey   } {} {\term{ \cancel{E}_\mathrm{y}     }}
+\DeclareDocumentCommand {\ametrel} {} {\term{ \cancel{E}_\mathrm{T,Rel} }}
+\DeclareDocumentCommand {\ampt   } {} {\term{ \cancel{p}_\mathrm{T}     }}
+
+% Mass
+\DeclareDocumentCommand {\mass   } { m } {\term{ m_\mathrm{#1}   }}
+\DeclareDocumentCommand {\twomass} { m } {\term{ m_\mathrm{#1#1} }}
+\DeclareDocumentCommand {\mll    } {   } {\term{ m_{\ell \ell}   }}
+\DeclareDocumentCommand {\mt     } {   } {\term{ m_\mathrm{T}    }}
+
+\DeclareDocumentCommand {\mh     } {} {\term{m_\mathrm{h}}}
+\DeclareDocumentCommand {\mW     } {} {\term{m_\mathrm{W}}}
+\DeclareDocumentCommand {\mZ     } {} {\term{m_\mathrm{Z}}}
+\DeclareDocumentCommand {\mH     } {} {\term{m_\mathrm{H}}}
+\DeclareDocumentCommand {\mA     } {} {\term{m_\mathrm{A}}}
+
+% Coordinates
+\DeclareDocumentCommand {\metdphi    } {} {\term{\Delta \phi (\met, \mpt) }}
+\DeclareDocumentCommand {\jvf        } {} {\term{\mathrm{JVF}}}
+
+\DeclareDocumentCommand {\hepeta     } {} {\term{\eta}}%
+\DeclareDocumentCommand {\hepy       } {} {\term{y   }}%
+
+\DeclareDocumentCommand {\ahepeta    } {} {\term{\abs{\eta}}}%
+\DeclareDocumentCommand {\ahepy      } {} {\term{\abs{y   }}}%
+
+\DeclareDocumentCommand {\dhepeta    } {} {\term{\Delta \eta}}%
+\DeclareDocumentCommand {\dahepeta   } {} {\term{\abs{\Delta \eta}}}%
+\DeclareDocumentCommand {\dhepetadphi} {} {\term{\Delta \eta \times \Delta \phi}}%
+\DeclareDocumentCommand {\hepetaprime} {} {\term{\oldeta^{\sst\prime}}}%
+\DeclareDocumentCommand {\dR         } {} {\term{\Delta R}}%
+
+\DeclareDocumentCommand {\dO} {} {\term{d_0}}
+\DeclareDocumentCommand {\zO} {} {\term{z_0}}
+
+\DeclareDocumentCommand {\adO   } {} {\term{\abs{d_0}}}
+\DeclareDocumentCommand {\azO   } {} {\term{\abs{z_0}}}
+\DeclareDocumentCommand {\azOsin} {} {\term{\abs{z_0 \sin(\theta)}}}
+
+% Cross section
+\DeclareDocumentCommand {\xs} { m } {\term{\sigma_\mathrm{#1} }}
+\DeclareDocumentCommand {\dw} { m } {\term{\Gamma_\mathrm{#1} }}
+
+\DeclareDocumentCommand {\hepmu  } {} {\term{\left<\mu\right>   }}
+\DeclareDocumentCommand {\lumi   } {} {\term{\mathfrak{L}       }}
+\DeclareDocumentCommand {\intlumi} {} {\term{L                  }}
+\DeclareDocumentCommand {\BR     } {} {\term{\mathrm{BR}        }}
+\DeclareDocumentCommand {\SF     } {} {\term{\mathrm{SF}        }}
+\DeclareDocumentCommand {\Acc    } {} {\term{\mathscr{A}        }}
+\DeclareDocumentCommand {\Aww    } {} {\term{A_\mathrm{\WW}     }}
+\DeclareDocumentCommand {\Cww    } {} {\term{C_\mathrm{\WW}     }}
+\DeclareDocumentCommand {\Nww    } {} {\term{N_\mathrm{\WW}     }}
+
+% Detectors
+\DeclareDocumentCommand {\XO} {} {\term{X_0}}%
+
+% Aliases
+\iftoggle{aliases}%
+{%
+    \let \et         \ET
+
+    \let \pT         \pt
+    \let \pTsq       \ptsq
+    \let \pTsum      \ptsum
+    \let \sumpt      \ptsum
+    \let \sumpT      \ptsum
+    \let \pTll       \ptll
+
+    \let \etmiss     \met
+    \let \ETmiss     \met
+    \let \MET        \met
+    \let \METRel     \metrel
+    \let \ptmiss     \mpt
+    \let \pTmiss     \mpt
+    \let \MPT        \mpt
+
+    \let \M          \m
+    \let \Mll        \mll
+    \let \Mt         \mt
+    \let \MT         \mt
+    \let \mT         \mt
+
+    \let \rapeta     \ahepeta
+    \let \rapy       \ay
+    \let \dphiMET    \dphimet
+    \let \JVF        \jvf
+    \let \jvtxf      \jvf
+}
+
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% | Particles                                                          |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+% Particle-antiparticle pair notation
+\DeclareDocumentCommand {\antibar} { m } {\term{ \mathrm{#1} \bar{\mathrm{#1}} }}
+
+% Nuclear particles
+\DeclareDocumentCommand {\neutron} {} {\term{ \mathrm{p} }}
+\DeclareDocumentCommand {\proton } {} {\term{ \mathrm{n} }}
+
+\DeclareDocumentCommand {\pp   } {} {\term{\mathrm{pp}    }}
+\DeclareDocumentCommand {\ppx  } {} {\term{\mathrm{p-p}   }}
+\DeclareDocumentCommand {\PbPb } {} {\term{\mathrm{PbPb}  }}
+\DeclareDocumentCommand {\PbPbx} {} {\term{\mathrm{Pb-Pb} }}
+
+\DeclareDocumentCommand {\pbar } {} {\term{\bar{\term{p}}}}
+\DeclareDocumentCommand {\ppbar} {} {\antibar{p}}
+
+% Gluon
+\DeclareDocumentCommand {\gpair} {} {\term{ \mathrm{gg} }}
+
+% Quarks
+\DeclareDocumentCommand {\quark } {} {\term{ \mathrm{q} }}
+\DeclareDocumentCommand {\uquark} {} {\term{ \mathrm{u} }}
+\DeclareDocumentCommand {\dquark} {} {\term{ \mathrm{d} }}
+\DeclareDocumentCommand {\squark} {} {\term{ \mathrm{s} }}
+\DeclareDocumentCommand {\cquark} {} {\term{ \mathrm{c} }}
+\DeclareDocumentCommand {\bquark} {} {\term{ \mathrm{b} }}
+\DeclareDocumentCommand {\tquark} {} {\term{ \mathrm{t} }}
+
+\DeclareDocumentCommand {\tbar } {} {\term{ \bar{\mathrm{t}} }}
+\DeclareDocumentCommand {\bbar } {} {\term{ \bar{\mathrm{b}} }}
+\DeclareDocumentCommand {\cbar } {} {\term{ \bar{\mathrm{c}} }}
+\DeclareDocumentCommand {\sbar } {} {\term{ \bar{\mathrm{s}} }}
+\DeclareDocumentCommand {\ubar } {} {\term{ \bar{\mathrm{u}} }}
+\DeclareDocumentCommand {\dbar } {} {\term{ \bar{\mathrm{d}} }}
+\DeclareDocumentCommand {\fbar } {} {\term{ \bar{\mathrm{f}} }}
+
+\DeclareDocumentCommand {\qbar } {} {\term{ \bar{\mathrm{q}} }}
+\DeclareDocumentCommand {\nbar } {} {\term{ \bar{\upnu}      }}
+
+\DeclareDocumentCommand {\ttbar} {} {\antibar{t}}
+\DeclareDocumentCommand {\bbbar} {} {\antibar{b}}
+\DeclareDocumentCommand {\ccbar} {} {\antibar{c}}
+\DeclareDocumentCommand {\ssbar} {} {\antibar{s}}
+\DeclareDocumentCommand {\uubar} {} {\antibar{u}}
+\DeclareDocumentCommand {\ddbar} {} {\antibar{d}}
+\DeclareDocumentCommand {\ffbar} {} {\antibar{f}}
+\DeclareDocumentCommand {\qqbar} {} {\antibar{q}}
+
+\DeclareDocumentCommand {\nnbar} {} {\antibar{\upnu}}
+
+% Leptons
+\DeclareDocumentCommand {\lep  } {} {\term{\mathrm{ell}^{+}   }}
+\DeclareDocumentCommand {\lem  } {} {\term{\mathrm{ell}^{-}   }}
+\DeclareDocumentCommand {\lepm } {} {\term{\mathrm{ell}^{\pm} }}
+
+\DeclareDocumentCommand {\elp  } {} {\term{\mathrm{e}^{+}     }}
+\DeclareDocumentCommand {\elm  } {} {\term{\mathrm{e}^{-}     }}
+\DeclareDocumentCommand {\elpm } {} {\term{\mathrm{e}^{\pm}   }}
+
+\DeclareDocumentCommand {\mup  } {} {\term{\upmu^{+}       }}
+\DeclareDocumentCommand {\mum  } {} {\term{\upmu^{-}       }}
+\DeclareDocumentCommand {\mupm } {} {\term{\upmu^{\pm}     }}
+
+\DeclareDocumentCommand {\taup } {} {\term{\uptau^{+}      }}
+\DeclareDocumentCommand {\taum } {} {\term{\uptau^{-}      }}
+\DeclareDocumentCommand {\taupm} {} {\term{\uptau^{\pm}    }}
+
+% Lepton pairs
+\DeclareDocumentCommand {\elel  } {} {\term{\mathrm{e}^+ \mathrm{e}^-    }}
+\DeclareDocumentCommand {\mumu  } {} {\term{\upmu^+ \upmu^-              }}
+\DeclareDocumentCommand {\elmu  } {} {\term{\mathrm{e}^{\pm} \upmu^{\mp} }}
+\DeclareDocumentCommand {\muel  } {} {\term{\upmu^{\mp} \text{e}^{\pm}   }}
+\DeclareDocumentCommand {\tautau} {} {\term{\uptau^+ \uptau^-            }}
+\DeclareDocumentCommand {\lele  } {} {\term{\mathrm{\ell}^+ \mathrm{\ell}^-}} % ell symbol differs "l" from "1" in all fonts
+
+\DeclareDocumentCommand {\elnu  } {} {\term{\mathrm{e} \upnu           }}
+\DeclareDocumentCommand {\munu  } {} {\term{\upmu \upnu                }}
+\DeclareDocumentCommand {\taunu } {} {\term{\uptau \upnu               }}
+
+\DeclareDocumentCommand {\lenu  } {} {\term{\ell \upnu                 }} % ell symbol differs "l" from "1" in all fonts
+\DeclareDocumentCommand {\lepnu } {} {\term{\ell^+ \upnu               }} % ell symbol differs "l" from "1" in all fonts
+\DeclareDocumentCommand {\lemnu } {} {\term{\ell^- \bar{\upnu}         }} % ell symbol differs "l" from "1" in all fonts
+
+\DeclareDocumentCommand {\elpnu    } {} {\term{\mathrm{e}^+ \upnu_\mathrm{e} }}
+\DeclareDocumentCommand {\mupnu    } {} {\term{\upmu^+   \upnu_{\upmu }      }}
+\DeclareDocumentCommand {\taupnu   } {} {\term{\uptau^+  \upnu_{\uptau}      }}
+
+\DeclareDocumentCommand {\elmnubar } {} {\term{\mathrm{e}^- {\bar \upnu}_\mathrm{e} }}
+\DeclareDocumentCommand {\mumnubar } {} {\term{\upmu^-   {\bar \upnu}_{\upmu }      }}
+\DeclareDocumentCommand {\tampnubar} {} {\term{\uptau^-  {\bar \upnu}_{\uptau}      }}
+
+\DeclareDocumentCommand {\elmumuel} {} {\term{\text{e}^{\pm} \upmu^{\mp} / \upmu^{\pm} \text{e}^{\mp} }}%
+\DeclareDocumentCommand {\lelenunu} {} {\term{\ell^+ \ell^- \upnu \bar{\upnu}}} % ell symbol differs from 1 in all fonts
+\DeclareDocumentCommand {\lenulenu} {} {\term{\ell^+ \upnu \ell^- \bar{\upnu}}} % ell symbol differs from 1 in all fonts
+
+% Vector bosons
+\DeclareDocumentCommand {\photon} {} {\term{\upgamma                 }}
+\DeclareDocumentCommand {\gstar } {} {\term{\upgamma^*               }}
+
+\DeclareDocumentCommand {\Zboson} {} {\term{\mathrm{Z}               }}
+\DeclareDocumentCommand {\ZO    } {} {\term{\mathrm{Z}^0             }}
+
+\DeclareDocumentCommand {\Wboson} {} {\term{\mathrm{W}               }}
+\DeclareDocumentCommand {\Wplus } {} {\term{\mathrm{W}^{+}           }}
+\DeclareDocumentCommand {\Wminus} {} {\term{\mathrm{W}^{-}           }}
+\DeclareDocumentCommand {\Wpm   } {} {\term{\mathrm{W}^{\pm}         }}
+\DeclareDocumentCommand {\Wmp   } {} {\term{\mathrm{W}^{\mp}         }}
+
+\DeclareDocumentCommand {\Wt    } {} {\term{\mathrm{Wt}              }}
+
+\DeclareDocumentCommand {\Wjets } {} {\term{\mathrm{W}+\mathrm{jets} }}
+\DeclareDocumentCommand {\Zjets } {} {\term{\mathrm{Z}+\mathrm{jets} }}
+
+% Dibosons
+\DeclareDocumentCommand {\WW} { s } {\IfBooleanTF {#1} {\term{ \mathrm{W}^{+  } \mathrm{W}^{-} }} {\term{ \mathrm{W}\mathrm{W} }}}
+\DeclareDocumentCommand {\WZ} { s } {\IfBooleanTF {#1} {\term{ \mathrm{W}^{\pm} \mathrm{Z}^{0} }} {\term{ \mathrm{W}\mathrm{Z} }}}
+\DeclareDocumentCommand {\ZZ} { s } {\IfBooleanTF {#1} {\term{ \mathrm{Z}^{0  } \mathrm{Z}^{0} }} {\term{ \mathrm{Z}\mathrm{Z} }}}
+
+% Scalar bosons
+\DeclareDocumentCommand {\Hboson} {} {\term{\mathrm{H}}}
+
+% QCD
+\DeclareDocumentCommand {\Jpsi} {} {\term{\mathrm{J}/\uppsi}}
+%\def\psip{\ensuremath{\psi^{\sst\prime}}}
+
+% Hadrons
+\DeclareDocumentCommand {\piO } {} {\term{ \uppi^0     }}
+\DeclareDocumentCommand {\pip } {} {\term{ \uppi^+     }}
+\DeclareDocumentCommand {\pim } {} {\term{ \uppi^-     }}
+\DeclareDocumentCommand {\pipm} {} {\term{ \uppi^{\pm} }}
+\DeclareDocumentCommand {\pimp} {} {\term{ \uppi^{\mp} }}
+
+\DeclareDocumentCommand {\kObar  } {} {\term{ \overline{\mathrm{K}}\vphantom{K}^0}}
+\DeclareDocumentCommand {\kO     } {} {\term{ \mathrm{K}^0            }}
+\DeclareDocumentCommand {\kOlong } {} {\term{ \mathrm{K}^0_\mathrm{L} }}
+\DeclareDocumentCommand {\kOshort} {} {\term{ \mathrm{K}^0_\mathrm{S} }}
+
+\DeclareDocumentCommand {\kaon   } {} {\term{ \mathrm{K}              }}
+\DeclareDocumentCommand {\kplus  } {} {\term{ \mathrm{K}^+            }}
+\DeclareDocumentCommand {\kminus } {} {\term{ \mathrm{K}^-            }}
+\DeclareDocumentCommand {\kpm    } {} {\term{ \mathrm{K}^{\pm}        }}
+\DeclareDocumentCommand {\kmp    } {} {\term{ \mathrm{K}^{\mp}        }}
+\DeclareDocumentCommand {\klong  } {} {\term{ \mathrm{K}^0_\mathrm{L} }}
+\DeclareDocumentCommand {\kshort } {} {\term{ \mathrm{K}^0_\mathrm{S} }}
+
+% Processes
+\DeclareDocumentCommand {\WWll  } {} {\term{\Wboson \Wboson \to \lenulenu           }}
+\DeclareDocumentCommand {\qqWWll} {} {\term{\qqbar \to \Wboson \Wboson \to \lenulenu}}
+\DeclareDocumentCommand {\ggWWll} {} {\term{\gpair \to \Wboson \Wboson \to \lenulenu}}
+\DeclareDocumentCommand {\qqZll } {} {\term{\qqbar \to \Zboson \to \ell^+ \ell^-}}
+
+\DeclareDocumentCommand {\HWW   } {} {\term{\Hboson\ra\Wplus\Wminus           }}
+\DeclareDocumentCommand {\ggHWW } {} {\term{\gpair \ra\Hboson\ra\Wboson\Wboson}}
+
+\DeclareDocumentCommand {\Wgamma} {} {\term{\Wboson\upgamma   }}
+\DeclareDocumentCommand {\Wgstar} {} {\term{\Wboson\upgamma^* }}
+
+\DeclareDocumentCommand {\Zelel   } {} {\term{\Zboson\rightarrow\elp\elm}}
+\DeclareDocumentCommand {\Zmumu   } {} {\term{\Zboson\rightarrow\mup\mum}}
+\DeclareDocumentCommand {\Ztautau } {} {\term{\Zboson\rightarrow\taup\taum}}
+\DeclareDocumentCommand {\Zll     } {} {\term{\Zboson\rightarrow\ell\ell}}
+\DeclareDocumentCommand {\DrellYan} {} {\term{\Zboson/\gstar\rightarrow\ell\ell}}
+\DeclareDocumentCommand {\Zgamma  } {} {\term{\Zboson\upgamma}}
+
+\DeclareDocumentCommand {\Zgstartautau} {} {\term{\Zboson/\gstar\rightarrow\tau\tau}}
+
+\DeclareDocumentCommand {\Jelel } {} {\term{\Jpsi\rightarrow\elp\elm}}
+\DeclareDocumentCommand {\Jmumu } {} {\term{\Jpsi\rightarrow\mum\mup}}
+
+% Aliases
+\iftoggle{aliases}%
+{%
+    \let \ph \photon
+
+    \let \epem \elel
+
+    \let \Zee \Zelel
+    \let \Zmm \Zmumu
+
+    \let \Jee \Jelel
+    \let \Jmm \Jmumu
+}
+
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Symbols                                                           |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+% MC Generators
+\DeclareDocumentCommand {\AcerMC  } {} {\texttt{AcerMC}\xspace}
+\DeclareDocumentCommand {\Alpgen  } {} {\texttt{Alpgen}\xspace}
+\DeclareDocumentCommand {\BHO     } {} {\texttt{BHO}\xspace}
+\DeclareDocumentCommand {\ggToWW  } {} {$\mathrm{gg}$\texttt{2ww}\xspace}
+\DeclareDocumentCommand {\Herwig  } {} {\texttt{Herwig}\xspace}
+\DeclareDocumentCommand {\Jimmy   } {} {\texttt{Jimmy}\xspace}
+\DeclareDocumentCommand {\LHAPDF  } {} {\texttt{LHAPDF}\xspace}
+\DeclareDocumentCommand {\MadGraph} {} {\texttt{MadGraph}\xspace}
+\DeclareDocumentCommand {\McAtNlo } {} {\texttt{MC@NLO}\xspace}
+\DeclareDocumentCommand {\Powheg  } {} {\texttt{POWHEG}\xspace}
+\DeclareDocumentCommand {\Pythia  } {} {\texttt{Pythia}\xspace}
+\DeclareDocumentCommand {\PythiaB } {} {\texttt{PythiaB}\xspace}
+\DeclareDocumentCommand {\Sherpa  } {} {\texttt{Sherpa}\xspace}
+\DeclareDocumentCommand {\MCFM    } {} {\texttt{MCFM}\xspace}
+
+\DeclareDocumentCommand {\dataMC  } {} {data/\MC\xspace}
+
+% Aliases
+\iftoggle{aliases}%
+{%
+    \let \acermc   \AcerMC
+    \let \alpgen   \Alpgen
+    \let \bho      \BHO
+    \let \ggtoww   \ggtoww
+    \let \herwig   \Herwig
+    \let \jimmy    \Jimmy
+    \let \lhapdf   \LHAPDF
+    \let \madgraph \MadGraph
+    \let \mcatnlo  \McAtNlo
+    \let \powheg   \Powheg
+    \let \pythia   \Pythia
+    \let \pythiab  \PythiaB
+    \let \sherpa   \Sherpa
+    \let \datamc   \dataMC
+}
+
+% Reconstruction
+\DeclareDocumentCommand {\AntiKt} {} {anti-$k_\mathrm{t}$\xspace}
+
+% Glossary
+
+
+
+
+
+
+
+
+
+
+
+\providecommand{\EjetRec}{\ensuremath{E_{\text{rec}}}} % Subscript roman not italic (EE)
+\providecommand{\PjetRec}{\ensuremath{p_{\text{rec}}}} % Subscript roman not italic (EE)
+\providecommand{\EjetTru}{\ensuremath{E_{\text{truth}}}} % Subscript roman not italic (EE)
+\providecommand{\PjetTru}{\ensuremath{p_{\text{truth}}}} % Subscript roman not italic (EE)
+\providecommand{\EjetDM} {\ensuremath{E_{\text{DM}}}} % Subscript roman not italic (EE)
+\providecommand{\Rcone}  {\ensuremath{R_{\text{cone}}}} % Subscript roman not italic (EE)
+
+
+
+
+
+
+\let\sst=\scriptscriptstyle % Needed for some definitions (psi and eta prime, etc.) (EE)
+\chardef\letterchar=11
+\chardef\otherchar=12
+\chardef\eolinechar=5
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Hours:minutes macro                                               |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\newcount\hrs\newcount\minu\newcount\temptime
+\def\hm{\hrs=\time \divide\hrs by 60 \minu=\time\temptime=\hrs
+\multiply\temptime by 60%
+\advance\minu by -\temptime
+\ifnum\minu<10 \let\zerofill=0\else \let\zerofill=\relax\fi
+ \the\hrs:\zerofill\the\minu}
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Useful symbols for use in or out of math mode                     |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\def\ra{\ensuremath{\rightarrow}}%  "GOES TO" arrow.
+\def\la{\ensuremath{\leftarrow}}%   "GETS" arrow.
+\let\rarrow=\ra
+\let\larrow=\la
+\def\lapprox{\ensuremath{\sim\kern-1em\raise 0.65ex\hbox{$<$}}}%  Or use \lsim
+\def\rapprox{\ensuremath{\sim\kern-1em\raise 0.65ex\hbox{$>$}}}%  and \rsim.
+\def\gam{\ensuremath{\gamma}}
+\def\rts {\ensuremath{\sqrt{s}}}
+\def\stat{\mbox{$\;$(stat.)}}
+\def\syst{\mbox{$\;$(syst.)}}
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  sin2thetaW m_W m_Z etc.                                           |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\def\Mtau{\ensuremath{m_{\tau}}}
+\def\swsq{\ensuremath{\sin^2\!\theta_{W}}}
+\def\swel{\ensuremath{\sin^2\!\theta_{\mathrm{eff}}^{\mathrm{lept}}}}
+\def\swsqb{\ensuremath{\sin^2\!\overline{\theta}_{W}}}
+\def\swsqon{\ensuremath{\swsq\equiv 1-\mW^2/\mZ^2}} % Lower-case masses (EE)
+\def\gv{\ensuremath{g_{\mathrm{V}}}} % Subscripts roman not italic (EE)
+\def\ga{\ensuremath{g_{\mathrm{A}}}} % Subscripts roman not italic (EE)
+\def\gvbar{\ensuremath{\bar{g}_\mathrm{V}}} % Subscripts roman not italic (EE)
+\def\gabar{\ensuremath{\bar{g}_\mathrm{A}}} % Subscripts roman not italic (EE)
+
+%
+
+% Gammas, asymmetries
+\def\Zzv{\ensuremath{\ZO^{\textstyle *}}}
+\def\Abbbar{\ensuremath{A_{\bbbar}}}
+\def\Accbar{\ensuremath{A_{\ccbar}}}
+\def\Aqqbar{\ensuremath{A_{\qqbar}}}
+\def\Afb{\ensuremath{A_{{fb}}}} % Subscript italic not roman (EE)
+\def\GZ{\ensuremath{\Gamma_{Z}}}
+\def\GW{\ensuremath{\Gamma_{W}}}
+\def\GH{\ensuremath{\Gamma_{H}}}
+\def\GamHad{\ensuremath{\Gamma_{\mathrm{had}}}}
+\def\Gbbbar{\ensuremath{\Gamma_{\bbbar}}}
+\def\Rbbbar{\ensuremath{R_{\bbbar}}}
+\def\Gccbar{\ensuremath{\Gamma_{\ccbar}}}
+\def\Gvis{\ensuremath{\Gamma_{\mathrm{vis}}}}
+\def\Ginv{\ensuremath{\Gamma_{\mathrm{inv}}}}
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  B-physics                                                         |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\def\Bstar{\ensuremath{B^{*}}}
+\def\chic{\ensuremath{\raise.4ex\hbox{$\chi$}_{{c}}}} % Raised & tightened, as chib (EE)
+\def\BoBo{\ensuremath{B^{0}\mbox{--}\bar{B}^{0}}} % en-dash not hyphen (EE)
+\def\BodBod{\ensuremath{B^{0}_{d}\mbox{--}\bar{B}^{0}_{d}}} % en-dash not hyphen (EE)
+\def\BosBos{\ensuremath{B^{0}_{s}\mbox{--}\bar{B}^{0}_{s}}} % en-dash not hyphen (EE)
+\def\chib{\ensuremath{\raise.4ex\hbox{$\chi$}_{{b}}}} % Bit of space removed (EE)
+\def\Epsb  {\ensuremath{\epsilon_{b}}} % Subscript italic not roman (EE)
+\def\Epsc  {\ensuremath{\epsilon_{c}}} % Subscript italic not roman (EE)
+\def\Kstar    {\ensuremath{K^{*}}}
+\def\Dstar   {\ensuremath{D^{*}}} % Italic not roman (EE)
+\def\Dsstar   {\ensuremath{D^{**}}} % Italic not roman (EE)
+\def\etpt     {\ensuremath{1/p_{\mathrm{T}} - 1/E_{\mathrm{T}}}}
+    % p not P, and subscripts roman not italic (EE)
+\def\etptsig  {\ensuremath{(1/p_{\mathrm{T}} - 1/E_{\mathrm{T}})/(\sigma(1/p_{\mathrm{T}}))}}
+    % p not P, and subscripts roman not italic (EE)
+\providecommand{\Bd} {\ensuremath{B_d^0}}
+\providecommand{\Bs} {\ensuremath{B_s^0}}
+\providecommand{\Bu} {\ensuremath{B_u}}
+\providecommand{\Bc} {\ensuremath{B_c}}
+\providecommand{\Lb} {\ensuremath{\Lambda_b}}
+\providecommand{\btol} {\ensuremath{b \rightarrow \ell}} % Italic not roman (EE)
+\providecommand{\ctol} {\ensuremath{c \rightarrow \ell}} % Italic not roman (EE)
+\providecommand{\btoctol} {\ensuremath{b \rightarrow c \rightarrow \ell}} % Italic not roman (EE)
+%
+
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  QCD (Simplified all of these: no hbox, etc.) (EE)                 |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\def\alphas{\ensuremath{\alpha_{\mathrm{S}}}} % Subscript roman not italic (EE)
+\def\NF{\ensuremath{N_{\mathrm{F}}}}
+\def\NC{\ensuremath{N_{\mathrm{C}}}}
+\def\CF{\ensuremath{C_{\mathrm{F}}}}
+\def\CA{\ensuremath{C_{\mathrm{A}}}}
+\def\TF{\ensuremath{T_{\mathrm{F}}}}
+\def\Lms{\ensuremath{\Lambda_{\overline{\mathrm{MS}}}}}
+\def\Lmsfive{\ensuremath{\Lambda^{(5)}_{\overline{\mathrm{MS}}}}}
+\def\KT{\ensuremath{k_{\perp}}}
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  CKM matrix                                                        |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\def\Vcb{\ensuremath{\vert V_{cb} \vert}}
+\def\Vub{\ensuremath{\vert V_{ub} \vert}}
+\def\Vtd{\ensuremath{\vert V_{td} \vert}}
+\def\Vts{\ensuremath{\vert V_{ts} \vert}}
+\def\Vtb{\ensuremath{\vert V_{tb} \vert}}
+\def\Vcs{\ensuremath{\vert V_{cs} \vert}}
+\def\Vud{\ensuremath{\vert V_{ud} \vert}}
+\def\Vus{\ensuremath{\vert V_{us} \vert}}
+\def\Vcd{\ensuremath{\vert V_{cd} \vert}}
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  New particle stuff                                                |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\def\Azero{\ensuremath{A^0}}%
+\def\hzero{\ensuremath{h^0}}%
+\def\Hzero{\ensuremath{H^0}}%
+\def\Hplus{\ensuremath{H^+}}%
+\def\Hminus{\ensuremath{H^-}}%
+\def\Hpm{\ensuremath{H^{\pm}}}%
+\def\Hmp{\ensuremath{H^{\mp}}}%
+\def\susy#1{\ensuremath{\tilde{#1}}}%
+\def\ggino{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi$}}}}
+
+\def\chinop{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^+$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^+$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^+$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^+$}}}}
+\def\chinom{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^-$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^-$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^-$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^-$}}}}
+\def\chinopm{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^\pm$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^\pm$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^\pm$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^\pm$}}}}
+\def\chinomp{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^\mp$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^\mp$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^\mp$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^\mp$}}}}
+
+\def\chinoonep{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^+_1$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^+_1$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^+_1$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^+_1$}}}}
+\def\chinoonem{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^-_1$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^-_1$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^-_1$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^-_1$}}}}
+\def\chinoonepm{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^\pm_1$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^\pm_1$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^\pm_1$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^\pm_1$}}}}
+
+\def\chinotwop{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^+_2$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^+_2$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^+_2$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^+_2$}}}}
+\def\chinotwom{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^-_2$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^-_2$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^-_2$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^-_2$}}}}
+\def\chinotwopm{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^\pm_2$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^\pm_2$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^\pm_2$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^\pm_2$}}}}
+
+\def\nino{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^0$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^0$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^0$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^0$}}}}
+
+\def\ninoone{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^0_1$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^0_1$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^0_1$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^0_1$}}}}
+\def\ninotwo{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^0_2$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^0_2$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^0_2$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^0_2$}}}}
+\def\ninothree{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^0_3$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^0_3$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^0_3$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^0_3$}}}}
+\def\ninofour{\ensuremath{\mathchoice%
+      {\displaystyle\raise.4ex\hbox{$\displaystyle\tilde\chi^0_4$}}%
+         {\textstyle\raise.4ex\hbox{$\textstyle\tilde\chi^0_4$}}%
+       {\scriptstyle\raise.3ex\hbox{$\scriptstyle\tilde\chi^0_4$}}%
+ {\scriptscriptstyle\raise.3ex\hbox{$\scriptscriptstyle\tilde\chi^0_4$}}}}
+
+\def\gravino{\ensuremath{\tilde{G}}}%
+\def\Zprime{\ensuremath{Z^\prime}}
+\def\Zstar{\ensuremath{Z^{*}}}
+
+\def\gluino{\ensuremath{\tilde{g}}}
+\def\stop{\ensuremath{\tilde{t}}}
+\def\stopone{\ensuremath{\tilde{t}_1}}
+\def\stoptwo{\ensuremath{\tilde{t}_2}}
+\def\stopL{\ensuremath{\tilde{t}_{\mathrm{L}}}} % Subscript roman not italic (EE)
+\def\stopR{\ensuremath{\tilde{t}_{\mathrm{R}}}} % Subscript roman not italic (EE)
+\def\sbottom{\ensuremath{\tilde{b}}}
+\def\sbottomone{\ensuremath{\tilde{b}_1}}
+\def\sbottomtwo{\ensuremath{\tilde{b}_2}}
+\def\sbottomL{\ensuremath{\tilde{b}_{\mathrm{L}}}} % Subscript roman not italic (EE)
+\def\sbottomR{\ensuremath{\tilde{b}_{\mathrm{R}}}} % Subscript roman not italic (EE)
+\def\slepton{\ensuremath{\tilde{\ell}}}
+\def\sleptonL{\ensuremath{\tilde{\ell}_{\mathrm{L}}}} % Subscript roman not italic (EE)
+\def\sleptonR{\ensuremath{\tilde{\ell}_{\mathrm{R}}}} % Subscript roman not italic (EE)
+\def\sel{\ensuremath{\tilde{e}}}
+\def\selL{\ensuremath{\tilde{e}_{\mathrm{L}}}} % Subscript roman not italic (EE)
+\def\selR{\ensuremath{\tilde{e}_{\mathrm{R}}}} % Subscript roman not italic (EE)
+\def\smu{\ensuremath{\tilde{\mu}}}
+\def\smuL{\ensuremath{\tilde{\mu}_{\mathrm{L}}}} % Subscript roman not italic (EE)
+\def\smuR{\ensuremath{\tilde{\mu}_{\mathrm{R}}}} % Subscript roman not italic (EE)
+\def\stau{\ensuremath{\tilde{\tau}}}
+\def\stauL{\ensuremath{\tilde{\tau}_{\mathrm{L}}}} % Subscript roman not italic (EE)
+\def\stauR{\ensuremath{\tilde{\tau}_{\mathrm{R}}}} % Subscript roman not italic (EE)
+\def\stauone{\ensuremath{\tilde{\tau}_1}}
+\def\stautwo{\ensuremath{\tilde{\tau}_2}}
+\def\snu{\ensuremath{\tilde{\nu}}}
+%
+
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Upsilons of various sorts                                         |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\def\Ups{\ensuremath{\mit\Upsilon}} % Should be italic (EE)
+\def\Upsp{\ensuremath{\mit\Upsilon^{\sst\prime}}} % Should be italic (EE)
+\def\Upspp{\ensuremath{\mit\Upsilon^{\sst\prime\prime}}} % Should be italic (EE)
+\def\Upsppp{\ensuremath{\mit\Upsilon^{\sst\prime\prime\prime}}} % Should be italic (EE)
+\def\Upspppp{\ensuremath{\mit\Upsilon^{\sst\prime\prime\prime\prime}}} % Should be italic (EE)
+\def\itUpsp{\ensuremath{\mit\Upsilon^{\sst\prime}}}%
+\def\UoneS{\ensuremath{\Upsilon(\mathrm{1S})}}%
+
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Things like \ups4 --> Y(4S)                                       |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\def\ups#1{\ensuremath{\mit{\Upsilon}(\mathrm{#1S})}} % Italic, fixed and simplified (EE)
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Notation for the P-lines: \nspj211 -->  2 1P1, etc.               |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\def\nsPj#1#2#3{\ensuremath{#1\,^{#2}\!P_{#3}}}%
+\let\nspj=\nsPj
+\def\nsSj#1#2#3{\ensuremath{#1\,^{#2}\!S_{#3}}}%
+\let\nssj=\nsSj
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Useful things for proton-proton physics                           |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+
+
+\def\degr{\ensuremath{^\circ}}
+\def\abseta{\ensuremath{|\eta|}}
+\def\Hgg{\ensuremath{H\to\gamma\gamma}}
+
+\def\Wjj{\ensuremath{W \rightarrow jj}}
+\def\tjjb{\ensuremath{t \rightarrow jjb}}
+\def\Hbb{\ensuremath{H \rightarrow b\bar b}}
+
+\def\Wln{\ensuremath{W \rightarrow \ell\nu}}
+\def\Wen{\ensuremath{W \rightarrow e\nu}}
+\def\Wmn{\ensuremath{W \rightarrow \mu\nu}}
+\def\Hllll{\ensuremath{H \rightarrow ZZ^{(*)} \rightarrow \mu\mu\mu\mu}}
+\def\Hmmmm{\ensuremath{H \rightarrow \mu\mu\mu\mu}}
+\def\Heeee{\ensuremath{H \rightarrow eeee}}
+\def\Amm{\ensuremath{A \rightarrow \mu\mu}}
+\def\Ztau{\ensuremath{Z \rightarrow \tau\tau}}
+\def\Wtau{\ensuremath{W \rightarrow \tau\nu}}
+\def\Atau{\ensuremath{A \rightarrow \tau\tau}}
+\def\Htau{\ensuremath{H \rightarrow \tau\tau}}
+\def\begL{10$^{31}$~cm$^{-2}$~s$^{-1}$}
+\def\lowL{10$^{33}$~cm$^{-2}$~s$^{-1}$}
+\def\highL{10$^{34}$~cm$^{-2}$~s$^{-1}$}
+
+
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  "Box-squared" operator, as in Klein-Gordon. Command is "\boxsq".  |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\newbox\boxsqbox
+\newdimen\boxsize\boxsize=1.2ex%
+\def\boxop{%
+\setbox\boxsqbox=\vbox{\hrule depth0.8pt width0.8\boxsize height0pt%
+                       \kern0.8\boxsize
+                       \hrule height0.8pt width0.8\boxsize depth0pt}%
+           \hbox{%
+           \vrule height1.0\boxsize width0.8pt depth0pt%
+           \copy\boxsqbox
+           \vrule height1.0\boxsize width0.8pt depth0pt\kern1.5pt}}%
+\def\boxsq{\ensuremath{\boxop^2}}%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Theoretical notations                                             |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\def\spinor#1{\ensuremath{\left(\matrix{#1_1\cr#1_2\cr#1_3\cr#1_4\cr}\right)}} % Math mode (EE)
+\def\pmb#1{\setbox0=\hbox{$#1$}%  This is "poor man's boldface".
+  \kern-.025em\copy0\kern-1.0\wd0%
+  \kern.05em\copy0\kern-1.0\wd0%
+  \kern-.025em\raise.0433em\box0}%
+\def\grad{\pmb{\nabla}}%
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  The decay symbol, to be used in \eqalign.                         |
+% |  It works like: \[\eqalign{a\ra &b+c\cr &\dk &e+f\cr &&\dk g+h}\]  |
+% |                                                                    |
+% |                  a  -->  b + c                                     |
+% |                          |                                         |
+% |                          |                                         |
+% |                          +----> e + f                              |
+% |                                 |                                  |
+% |                                 |                                  |
+% |                                 +----> g + h                       |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\newdimen\dkwidth
+\def\dk{%
+   \dkwidth=\baselineskip
+   {\def\to{\rightarrow}%  allows "\rightarrowfill" to work.
+   \kern 3pt%
+   \hbox{%
+      \raise 3pt%
+      \hbox{%
+         \vrule height 0.8\dkwidth width 0.7pt depth0pt%
+      }%
+      \kern-0.4pt%
+      \hbox to 1.5\dkwidth{%
+         \rightarrowfill
+      }%
+   \kern0.6em%
+   }}%
+}%
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  Redefine \eqalign to allow more than one column; very             |
+% |  useful for multiple decays as defined above.                      |
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+%\unlock
+\def\eqalign#1{%
+   \,
+   \vcenter{%
+      \openup\jot\m@th
+      \ialign{%
+         \strut\hfil$\displaystyle{##}$&&$%
+         \displaystyle{{}##}$\hfil\crcr#1\crcr%
+      }%
+   }%
+   \,
+}%
+%\lock
+%
+% +--------------------------------------------------------------------+
+% |                                                                    |
+% |  JOURNALS (for MISC definitions, see also ../biblio/ATLASstyle.bst)|
+% |                                                                    |
+% +--------------------------------------------------------------------+
+%
+\providecommand {\AcPA}   {Acta Phys. Austriaca{} }
+\providecommand {\ARevNS} {Ann.{} Rev.{} Nucl.{} Sci.{} }
+\providecommand {\CPC}    {Comp.{} Phys.{} Comm.{} }
+\providecommand {\FortP}  {Fortschr.{} Phys.{} }
+\providecommand {\IJMP}   {Int.{} J.{} Mod.{} Phys.{} }
+\providecommand {\JETP}   {Sov.{} Phys.{} JETP{} }
+\providecommand {\JETPL}  {JETP Lett.{} }
+\providecommand {\JaFi}   {Jad.{} Fiz.{} }
+\providecommand {\JMP}    {J.{} Math.{} Phys.{} }
+\providecommand {\MPL}    {Mod.{} Phys.{} Lett.{} }
+\providecommand {\NCim}   {Nuovo Cimento{} }
+\providecommand {\NIM}    {Nucl.{} Instrum.{} Meth.{} }
+\providecommand {\NP}     {Nucl.{} Phys.{} }
+\providecommand {\PL}     {Phys.{} Lett.{} }
+\providecommand {\PR}     {Phys.{} Rev.{} }
+\providecommand {\PRL}    {Phys.{} Rev.{} Lett.{} }
+\providecommand {\PRep}   {Phys.{} Rep.{} }
+\providecommand {\RMP}    {Rev.{} Mod.{} Phys.{} }
+\providecommand {\ZfP}    {Z.{} Phys.{} }
+\providecommand {\EPJ}    {Eur.{} Phys.{} J.{} }
+
+\endinput
+
+% EOF

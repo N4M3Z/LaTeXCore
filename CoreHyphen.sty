@@ -1,0 +1,33 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{N4M3ZHyphen}[2014/12/31 N4M3Z Hyphenation Specifications Package]
+
+%%% +----------------------------------------------------------------------------------------------+
+%%% |                                                                                              |
+%%% | Options                                                                                      |
+%%% |                                                                                              |
+%%% +----------------------------------------------------------------------------------------------+
+
+%% Fallback
+\DeclareOption*%
+{%
+  \PackageWarning{N4M3ZHyphen}{Unknown option '\CurrentOption'}
+}
+
+%% Process given options
+\ProcessOptions\relax
+
+%%% +----------------------------------------------------------------------------------------------+
+%%% |                                                                                              |
+%%% | Commands                                                                                     |
+%%% |                                                                                              |
+%%% +----------------------------------------------------------------------------------------------+
+%% Load additional packages and commands
+%% For LaTeX2e guidelines, please read LaTeX2e tabu at: http://distrib-coffee.ipsl.jussieu.fr/pub/mirrors/ctan/info/l2tabu/english/l2tabuen.pdf
+
+\hyphenation % declares allowed hyphenation points for a list of words, separated by spaces in which each hyphenation point is indicated by a - character.
+{%
+    electro-weak%
+    super-string%
+}%
+
+\endinput

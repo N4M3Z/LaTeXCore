@@ -1,0 +1,254 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{Core}[2014/12/31 N4M3Z Core Package]
+
+%%% +----------------------------------------------------------------------------------------------+
+%%% |                                                                                              |
+%%% | Core                                                                                         |
+%%% |                                                                                              |
+%%% +----------------------------------------------------------------------------------------------+
+
+% First a few words about best practices in LaTeX
+% -----------------------------------------------
+% - Read LaTeX2 tabu about obsolete packages and commands: http://www.ctan.org/tex-archive/info/l2tabu/
+% - Read documentation of proper math typesetting: http://www.ctan.org/tex-archive/info/math/voss/mathmode/
+% - Use version control (SVN, git etc.)
+% - Use the fact that LaTeX is not WYSIWYG. When writing paragraphs, start each sentence at the beginning of a line, and if it spills over, each subsequent line is tabbed.
+% - Use latexmk + latexmkrc configuration files
+% - Use "nag" Latex package, it warns the user about the usage of old packages or commands (for example, using \it, \tt, etc.) and warns about the things mentioned in l2tabu.
+% - Use "fixltx2e" package, fixes bugs in LaTeX between releases, see http://www.ctan.org/pkg/fixltx2e
+% - Use "geometry" package to set up page geometry instead of doing it manually. Never use obsolete a4.sty or a4wide.sty
+% - Use "hyperref" to manage hyperlinks in your document (PDF only)
+% - Use "booktabs" for better-looking tables than LaTeX default: introduces \toprule, \midrule, \botomrule
+% - Use "siunitx" to typeset units. The package tries to replace sistyle, siunits, units, etc. and is actively maintained
+% - Use "setspace" to define line spacing in documents, do not modify \baselinestreach yourself.
+% - Use "microtype" for small-scale typographic enhancements (character protrusion, font expansion, letter-spacing).
+% - Use "listings" for code listings formatting.
+% - Use "fancyvrb" to get precise control in verbatim listings.
+% - If you're creating PDF documents, use "hyperref" to get hyperlinks in your document.
+% - If your document has a lot of technical figures, it might be a good idea to learn PGF/Tikz, sketch 3D, and pstricks, or a combination of those.
+% - Use \centering instead of \begin{center} \end{center} to center things inside tables/figures etc.  \centering doesn't add any additional vertical space.
+% - Typeset your document in draft mode to see how bad over- and underfull lines are, and if they are pretty bad, consider changing the wording a bit (but don't fuss too much over this, as the best wording is more important than minor typographical improvements). You can also help Latex by letting it hyphenate some words in this case.
+
+% - Use \newcommand to make things more logical. For example, let's say you're writing a biology book, and it has a lot of scientific names of different species. Instead of littering your document with things like \textit{Homo sapiens}, you could define a new command \newcommand{\species}[2]{\textit{#1 #2}}. Then, later when you're reading rules about formatting species names, you realize that the name should be in a font different from the surrounding text—textit doesn't work if the surrounding text is in italics. You should have used \emph. With the \newcommand, the change is easy. Without the \newcommand, you have to manually change the font changing command in all the places you use a species name.
+
+%% ------------------------------------------------------------------------------------------------
+%%  xparse
+%% ------------------------------------------------------------------------------------------------
+% Pro­vides a high-level in­ter­face for pro­duc­ing doc­u­ment-level com­mands. In that way, it of­fers a re­place­ment for LATEX 2e \new­com­mand macro, with sig­nif­i­cantly im­proved func­tion­al­ity.
+
+% http://www.ctan.org/pkg/xparse
+% Version: 3990, 2014, LaTeX2e
+% Load before: everything else
+% Load after: -
+% Compatibility: -
+% Incompatibility: -
+
+\RequirePackage{xparse}
+
+%\PassOptionsToClass[log-declarations=false]{xparse} % supresses all logs
+
+% INFO: A short discussion of LaTeX commands
+% TeX native commands:
+% --------------------
+% - \def is a TeX primitive
+% - \let \macroa \macrob  "copies" the definition of \macrob to \macroa. However, the important is that the definition isn't actually copied, the command sequence \macroa now points to the same hash table entry as \macrob
+
+% LaTeX overlay:
+% --------------
+% The most obvious benefits of \newcommand over \def are:
+% 1. \newcommand checks whether or not the command already exists
+% 2. \newcommand allows you to define an optional argument
+% 3. With LaTex2e, it is also possible to add a default parameter to a command with the following syntax: \newcommand{name}[num][default]{definition}
+
+% In certain cases you might also want to use the \providecommand command. It works like \newcommand, but if the command is already defined, LaTeX will silently ignore the new command.
+
+% xparse overlay (LaTeX3):
+% ------------------------
+% - \DeclareDocumentCommand <Function> {<arguments>} {<code>}
+% - \NewDocumentCommand     <Function> {<arguments>} {<code>}
+% - \RenewDocumentCommand   <Function> {<arguments>} {<code>}
+% - \ProvideDocumentCommand <Function> {<arguments>} {<code>}
+
+% - \DeclareDocumentEnvironment       {<environment>} {<arguments>} {<start code>} {<end code>}
+% - \NewDocumentEnvironment           {<environment>} {<arguments>} {<start code>} {<end code>}
+% - \RenewDocumentEnvironment         {<environment>} {<arguments>} {<start code>} {<end code>}
+% - \ProvideDocumentEnvironment       {<environment>} {<arguments>} {<start code>} {<end code>}
+% - \DeclareExpandableDocumentCommand {<environment>} {<arguments>} {<start code>} {<end code>}
+
+% - \IfNoValueTF {<argument>} {<true code>} {<false code>}
+% - \IfNoValueT  {<argument>} {<true code>}
+% - \IfNoValueF  {<argument>} {<false code>}
+
+% - \IfBooleanTF <argument> {<true code>} {<false code>}
+% - \IfBooleanT  <argument> {<true code>}
+% - \IfBooleanF  <argument> {<false code>}
+
+% And additionally adds argument processor like \ReverseBoolean, \SplitArgument, \SplitList, \TrimSpaces etc.
+% - \DeclareExpandableDocumentCommand <function> {<arguments> {<code>}
+
+%% ------------------------------------------------------------------------------------------------
+%%  etoolbox
+%% ------------------------------------------------------------------------------------------------
+% The pack­age is a tool­box of pro­gram­ming fa­cil­i­ties geared pri­mar­ily to­wards LATEX class and pack­age au­thors.
+
+% http://www.ctan.org/pkg/xparse
+% Version: 2.1, 2011, LaTeX2e
+% Load before: everything else
+% Load after: -
+% Compatibility: -
+% Incompatibility: -
+
+\RequirePackage{etoolbox}
+
+%%% +----------------------------------------------------------------------------------------------+
+%%% |                                                                                              |
+%%% | Options                                                                                      |
+%%% |                                                                                              |
+%%% +----------------------------------------------------------------------------------------------+
+%% Custom package options
+\providetoggle{morewrites}
+\providetoggle{xspace}
+
+\DeclareOption{morewrites} { \toggletrue{morewrites} }
+\DeclareOption{xspace}     { \toggletrue{xspace}     }
+
+%% Fallback
+\DeclareOption*%
+{%
+  \PackageWarning{namezcore}{Unknown option '\CurrentOption'}
+}
+
+%% Execute default options
+%\ExecuteOptions{}
+
+%% Process given options
+\ProcessOptions\relax
+
+%%% +----------------------------------------------------------------------------------------------+
+%%% |                                                                                              |
+%%% | Commands                                                                                     |
+%%% |                                                                                              |
+%%% +----------------------------------------------------------------------------------------------+
+%% Load additional packages and commands
+
+%% ------------------------------------------------------------------------------------------------
+%%  adjustbox
+%% ------------------------------------------------------------------------------------------------
+\RequirePackage[export]{adjustbox}
+% export ... Exports most keys of \adjustbox to \includegraphics so that they can be used with this macro as well.
+% Export ... Sets \includegraphics to be identical to \adjincludegraphics, which also allows the usage of all \adjustbox keys.
+
+%% ------------------------------------------------------------------------------------------------
+%%  standalone
+%% ------------------------------------------------------------------------------------------------
+%\RequirePackage{subfiles}
+\RequirePackage{standalone}
+% 2012, LaTeX2e
+
+\iftoggle{morewrites}%
+{%
+    %% ------------------------------------------------------------------------------------------------
+    %%  morewrites
+    %% ------------------------------------------------------------------------------------------------
+    % Allows more writes to .aux files (default limited to 16), fixes the "no room for a new \write" error
+    % WARNING: Some distributions of TEX allow a quoted syntax for file names with spaces. A temporary fix is to avoid file names with spaces. The current code trims spaces at the end of every line that is written to a file.
+
+    % http://www.ctan.org/pkg/morewrites
+    % Version: 0.2e, 2013, LaTeX2e
+    % Load before: everything else
+    % Load after: -
+    % Compatibility: -
+    % Incompatibility: -
+
+    \RequirePackage{morewrites}
+}
+
+%% ------------------------------------------------------------------------------------------------
+%%  nag
+%% ------------------------------------------------------------------------------------------------
+% Old habits die hard. All the same, there are commands, classes and packages which are outdated and superseded. nag provides routines to warn the user about the use of those. As an example, we provide an extension that detects many of the ``sins'' described in l2tabu.
+
+% http://www.ctan.org/pkg/nag
+% Version: 0.7, 2011, LaTeX2e
+% Load before: everything else
+% Load after: -
+% Compatibility: -
+% Incompatibility: caption, subfig, float, topcapt, rotating
+
+\RequirePackage[l2tabu, orthodox]{nag}
+% - l2tab ... loads nag-l2tabu.cfg checking for most common l2tabu issues
+% - orthodox ... lnag-orthodox.cfg warns about usage that is not technically incorrect, but will mostly do things an unwary user may not expect
+
+%% ------------------------------------------------------------------------------------------------
+%%  fixltx2e
+%% ------------------------------------------------------------------------------------------------
+% Fixes bugs in LaTeX between releases
+
+% http://www.ctan.org/pkg/fixltx2e
+% Version: 1.1h, 2014, LaTeX2e
+% Load before: everything else
+% Load after: -
+% Compatibility: -
+% Incompatibility: -
+
+\RequirePackage{fixltx2e}
+
+%% ------------------------------------------------------------------------------------------------
+%%  fix-cm
+%% ------------------------------------------------------------------------------------------------
+% Over­rides the (orig­i­nal) LaTeX re­stric­tions on the sizes at which CM and EC fonts may be used, otherwise one gets warning:
+% "Size substitutions with differences(Font) up to 1.64499pt have occurred"
+% The issue caused by siunitx in math mode with newtxmath or xfrac
+
+% http://www.ctan.org/pkg/fix-cm
+% Version: 1.1h, 2004, LaTeX2e
+% Load before: everything else
+% Load after: -
+% Compatibility: -
+% Incompatibility: -
+\RequirePackage{fix-cm}
+
+%% ------------------------------------------------------------------------------------------------
+%%  ifpdf
+%% ------------------------------------------------------------------------------------------------
+% The following is needed in order to make the code compatible with both latex/dvips and pdflatex.
+% WARNING: ifpdf returns true when using LuaLaTeX (this is intentionally used here)
+
+% http://www.ctan.org/pkg/ifpdf
+% Version: 2.3, 2011, LaTeX2e
+% Load before: -
+% Load after: -
+% Compatibility: -
+% Incompatibility: -
+
+\RequirePackage{ifpdf}
+
+%% ------------------------------------------------------------------------------------------------
+%%  iftex
+%% ------------------------------------------------------------------------------------------------
+% Package for both Plain TeX and LaTeX, defines the \ifPDFTeX, \ifXeTeX, and \ifLuaTeX boolean for testing whether PDFTeX, or XeTeX, or LuaTeX is being used for typesetting.
+
+% http://www.ctan.org/pkg/iftex
+% Version: 0.2, 2013, LaTeX2e
+% Load before: -
+% Load after: -
+% Compatibility: -
+% Incompatibility: -
+
+\RequirePackage{iftex}
+
+%% ------------------------------------------------------------------------------------------------
+%%  xspace
+%% ------------------------------------------------------------------------------------------------
+\iftoggle{xspace}%
+{%
+    \RequirePackage{xspace} % inserts space after macros automatically and takes care not to insert the space before punctuation (potentially unsafe)
+}{%
+    % Compatibility
+    \providecommand \xspace \undefined
+}
+
+% Force Error log
+\errorcontextlines=\maxdimen
+
+\endinput

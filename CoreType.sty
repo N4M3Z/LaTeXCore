@@ -1,0 +1,287 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{CoreType}[2014/12/31 N4M3Z Typography Specifications Package]
+\RequirePackage{Core}
+
+% How to get upright Greek letters
+% --------------------------------
+% (from the documentation of isomath)
+% Of the following methods, can be used.
+% Consider that using isomath with PDFLaTex or unicode-math with LuaTeX or XeTeX is considered a modern approach
+%
+% a) If using LuaTeX/XeTeX, use unicode-math package:
+%        \usepackage[utopia]{mathdesign}
+%        \usepackage[OMLmathrm,OMLmathbf]{isomath}
+%    and in the body:
+%        $\mathrm{\pi}$ or $\mathbf{\pi}$
+%
+% b) Use isomath and the mathdesign package:
+%        \usepackage[utopia]{mathdesign}
+%        \usepackage[OMLmathrm,OMLmathbf]{isomath}
+%    Now, e. g., \mathrm{\pi} and \mathbf{\pi} work as expected.
+%    This ensures compatibility between PDFLaTeX and LuaTeX/XeTeX
+%
+% c) To get upright small Greek letters without affecting other fonts, set the math
+%    alphabet manually to one of the three mathdesign fonts, e. g.: \SetMathAlphabet{\mathbf}{normal}{OML}{mdput}{b}{n}
+%    (check if the letter shapes match with the rest of the document).
+%
+% d) Use a package that provides macros for upright Greek letters in math mode:
+%      - fourier \otheralpha ... \otherOmega
+%      - kpfonts \alphaup    ... \Omegaup
+%      - mathdesign \alphaup ... \Omegaup
+%      - pgreek \upalpha     ... \upOmega
+%
+% e) Use an upright text character (requires a matching LGR-encoded Greek text font). The following lines redefine \pi to set the mathematical constant pi upright:
+%        \usepackage[LGR,T1]{fontenc}
+%        \usepackage[greek,british]{babel}
+%        \usepackage{amsmath}
+%        \let\mathpi\pi
+%        \renewcommand{\pi}{\text{\textrm{\greektext p }}}
+%
+% f) Use the text character with the alphabeta package from the lgrx bundle: \usepackage{amsmath}
+%        \usepackage{alphabeta}
+%    and in the body
+%        $ u = 2 \text{\pi} r $
+
+%%% +----------------------------------------------------------------------------------------------+
+%%% |                                                                                              |
+%%% | Options                                                                                      |
+%%% |                                                                                              |
+%%% +----------------------------------------------------------------------------------------------+
+%% Custom package options
+\providetoggle{microtype}
+
+\DeclareOption{microtype} { \toggletrue{microtype} }
+
+%% Fallback
+\DeclareOption*%
+{%
+  \PackageWarning{N4M3ZType}{Unknown option '\CurrentOption'}
+}
+
+%% Process given options
+\ProcessOptions\relax
+
+%%% +----------------------------------------------------------------------------------------------+
+%%% |                                                                                              |
+%%% | Commands                                                                                     |
+%%% |                                                                                              |
+%%% +----------------------------------------------------------------------------------------------+
+%% Load additional packages and commands
+%% For LaTeX2e guidelines, please read LaTeX2e tabu at: http://distrib-coffee.ipsl.jussieu.fr/pub/mirrors/ctan/info/l2tabu/english/l2tabuen.pdf
+
+\ifPDFTeX
+    % ENCODING
+    % --------
+    \RequirePackage[utf8]{inputenc} % utf8x is to be avoided if possible, since it loads the ucs package
+    \RequirePackage[T1]{fontenc} % Force the font encoding to be T1 when loading inputenc, otherwise OT1 would be used (which has very few characters)
+
+    % TEXT FONTS
+    % ----------
+    % prefer Times Roman in PostScript format (obsolete)
+    %\usepackage{times}              % prefer Times Roman in PostScript format for rmfamily
+    %\usepackage{helvet}             % prefer Arial, Verdana, Helvetica for sans serif
+
+    % Traditional replacement for Times package
+    %\usepackage{mathptmx} % does not contain boldmath fonts !
+    %\usepackage{helvet}
+    %\usepackage[scaled=.90]{helvet}
+    %\usepackage{courier}
+
+    %\usepackage{lmodern} % The Latin Modern fonts are enhanced versions of the Computer Modern fonts. They have enhanced metrics and glyph coverage (and they are also ugly)
+    \RequirePackage[helvratio=1.0]{newtxtext} % A next to identical font to times.sty with perfectly equalized math (see below), the standard correction to Helvet ratio scale is 0.9, which we will not use as helvetica is used only for headings and we acutally want them slighly larger than normal
+
+    %\usepackage{textcomp} % textcomp extra symbols, recommended package before loading gensymb.
+    %\usepackage{gensymb}  % Generic symbols for both text and math mode (\degree , \celsius , \perthousand , \micro and \ohm )
+
+    % MATH FONTS
+    % ----------
+    \RequirePackage{amsmath} % loads amstext, amsbsy, amsopn but not amssymb
+    \RequirePackage{amssymb}
+    %\RequirePackage[bigdelims,timesmathacc,varg,cmintegrals,nosymbolsc]{newtxmath}
+    \RequirePackage[bigdelims,varg,cmintegrals]{newtxmath}
+    \RequirePackage{mathtools} % extension package to amsmath
+    \RequirePackage{abraces} % horizontal braces and advanced controls
+    %\RequirePackage[lite]{mtpro2} % excellent professional font (paid version only)
+    %\RequirePackage{wasysym} % supports Quantum Theory related symbols (\mathscr{H} ... Hilbert spaces, Lagrangians), [nointegrals] compatibility with amsmath
+    \RequirePackage{mathrsfs} %, Sup­port use of the Raph Smith’s For­mal Script font in math­e­mat­ics. Pro­vides a \math­scr com­mand, rather than over­writ­ing the stan­dard \math­cal
+    \RequirePackage{fixmath}  % Make maths comply with ISO31-0:1992 to ISO31-13:1992, defines Greek letters as alphabetic symbols
+    \RequirePackage{upgreek}  % Upright Greek letters: \upmu, \uppi etc.
+    %\usepackage{bm}       % load after all math to give access to bold math
+
+    % Superseeds mathgreek
+    %\usepackage[utopia]{mathdesign}
+    %\usepackage[OMLmathrm,OMLmathbf]{isomath}
+
+    % LANGUAGE LOCALE
+    % ---------------
+    \RequirePackage[english,french,czech]{babel} % Multilingual typesetting
+
+    % TYPOGRAPHIC FINE-TUNING
+    % -----------------------
+    \allowdisplaybreaks[1] % page breaks are allowed, but avoided if possible
+
+    \iftoggle{microtype}%
+    {%
+        \RequirePackage[babel=true,auto]{microtype}
+        %\RequirePackage[babel=true,activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+        % ... activate={true,nocompatibility} - activate protrusion and expansion
+        % ... final - enable microtype; use "draft" to disable
+        % ... tracking=true, kerning=true, spacing=true - activate these techniques
+        % ... factor=1100 - add 10% to the protrusion amount (default is 1000)
+        % ... stretch=10, shrink=10 - reduce stretchability/shrinkability (default is 20/20)
+
+        %\SetProtrusion{encoding={*},family={bch},series={*},size={6,7}}
+        %      {1={ ,750},2={ ,500},3={ ,500},4={ ,500},5={ ,500},
+        %       6={ ,500},7={ ,600},8={ ,500},9={ ,500},0={ ,500}
+
+        %\SetExtraKerning[unit=space]
+        %    {encoding={*}, family={bch}, series={*}, size={footnotesize,small,normalsize}}
+        %    {\textendash={400,400}, % en-dash, add more space around it
+        %     "28={ ,150}, % left bracket, add space from right
+        %     "29={150, }, % right bracket, add space from left
+        %     \textquotedblleft={ ,150}, % left quotation mark, space from right
+        %     \textquotedblright={150, }} % right quotation mark, space from left
+
+        %\SetExtraKerning[unit=space]
+        %   {encoding={*}, family={qhv}, series={b}, size={large,Large}}
+        %   {1={-200,-200},
+        %    \textendash={400,400}}
+
+        %\SetTracking{encoding={*}, shape=sc}{40}
+    }%
+
+\else
+  \ifLuaTeX
+    % LuaLaTeX
+    % If using LuaLaTeX
+    % 1. Don't load inputenc, just encode your source in UTF-8.
+    % 2. Don't load fontenc nor textcomp, but load fontspec.
+    % 3. babel works with LuaLATEX but you can load polyglossia instead.
+    % 4. Don't use any package that changes the fonts, but use fontspec's commands instead.
+
+    % TEXT FONTS
+    % ----------
+    \RequirePackage{fontspec}
+    %\defaultfontfeatures{Ligatures=TeX} % To support LaTeX quoting style
+
+    % The TeX Gyre (TG) Font collection
+    % ---------------------------------
+    % An extensive remake and extension of the freely available 35 base PostScript fonts distributed with Ghostscript ver. 4.00.
+    % The important aspect of the project is providing not only the support for TeX but also the cross-platform OpenType format of the fonts
+    % URL: http://www.gust.org.pl/projects/e-foundry/tex-gyre/
+
+    \setmainfont{Tex Gyre Termes} % TeX Gyre Termes can be used as a replacement for the renowned Times (new) Roman font
+    %\setmainfont{Times New Roman}
+
+    \setsansfont{Tex Gyre Heros} % TeX Gyre Heros can be used as a replacement for a popular font Helvetica, also known as Swiss
+    %\setsansfont{Helvetica}
+
+    \setmonofont{Tex Gyre Cursor} % TeX Gyre Cursor can be used as a replacement for a well-known Courier typeface
+    %\setmonofont{Courier New}
+
+    % MATH FONTS
+    % ----------
+    \RequirePackage{amsmath} % loads amstext, amsbsy, amsopn but not amssymb
+    \RequirePackage{amssymb}
+    \RequirePackage{amsfonts}
+
+    \RequirePackage{mathtools} % extension package to amsmath
+    %\RequirePackage[lite]{mtpro2} % excellent professional math font (paid version only)
+    %\RequirePackage[nointegrals]{wasysym} % supports Quantum Theory related symbols (\mathscr{H} ... Hilbert spaces, Lagrangians), [nointegrals] compatibility with amsmath
+    \RequirePackage{mathrsfs} %, Sup­port use of the Raph Smith’s For­mal Script font in math­e­mat­ics. Pro­vides a \math­scr com­mand, rather than over­writ­ing the stan­dard \math­cal
+    %\RequirePackage{fixmath}  % Make maths comply with ISO31-0:1992 to ISO31-13:1992, defines Greek letters as alphabetic symbols
+
+    \RequirePackage{unicode-math}
+    \unimathsetup%
+    {%
+        normal-style   = TeX,
+        math-style     = TeX,
+        bold-style     = TeX,
+        sans-style     = upright,
+        nabla          = upright,
+        partial        = upright,
+        vargreek-shape = TeX,
+        slash-delimiter= frac,
+    }%
+    \setmathfont{XITS Math}
+    \setmathfont[range={\mathcal,\mathbfcal},StylisticSet=1]{XITS Math} % separate mathcal from mathscr
+
+    %\RequirePackage[Symbol]{upgreek}  % Does not work with unicode-math
+
+    % LANGUAGE LOCALE
+    % ---------------
+    \RequirePackage{polyglossia} % LuaTeX, XeTeX Babel replacement
+    \setdefaultlanguage[variant=british]{english}
+    \setotherlanguages{czech,french}
+
+    % TYPOGRAPHIC FINE-TUNING
+    % -----------------------
+    \allowdisplaybreaks[1] % page breaks are allowed, but avoided if possible
+
+    \iftoggle{microtype}%
+    {%
+        \RequirePackage[auto]{microtype}
+    }%
+
+    % EXTRAS
+    % ------
+    \RequirePackage{luatextra} % also loads fixltx2e, fontspec, xunicode
+
+  \ifXeTeX
+
+  \fi
+\fi
+
+%% ------------------------------------------------------------------------------------------------
+%%  csquotes
+%% ------------------------------------------------------------------------------------------------
+\RequirePackage[autostyle=true]{csquotes}
+
+% Czech csquotes
+\DeclareQuoteStyle{czech}
+  {\quotedblbase}
+  {\textquotedblleft}
+  {\textquoteleft}
+  {\textquoteright}
+% \renewcommand{\uv}[1]{
+%   \enquote{#1}
+% }
+
+%% ------------------------------------------------------------------------------------------------
+%%  cancel
+%% ------------------------------------------------------------------------------------------------
+\RequirePackage{cancel}
+
+%% ------------------------------------------------------------------------------------------------
+%%  slashed
+%% ------------------------------------------------------------------------------------------------
+\RequirePackage{slashed}
+
+%%% +----------------------------------------------------------------------------------------------+
+%%% |                                                                                              |
+%%% | Contingencies                                                                                |
+%%% |                                                                                              |
+%%% +----------------------------------------------------------------------------------------------+
+
+\IfFileExists{euscript.sty}
+  {%
+    \ifPDFTeX
+        \usepackage[mathcal]{euscript}
+    \fi
+    \newcommand{\EUmathcal}[1]{\usefont{U}{eus}{m}{n}##1}
+  }%
+  {}
+
+\IfFileExists{mbboard.sty}
+  {%
+    \newcommand{\MBBmathbb}[1]{\usefont{OT1}{mbb}{m}{n}##1}
+  }%
+  {}
+
+\IfFileExists{bbold.sty}
+  {%
+    \newcommand{\BBmathbb}[1]{\usefont{U}{bbold}{m}{n}##1}
+  }%
+  {}
+
+\endinput

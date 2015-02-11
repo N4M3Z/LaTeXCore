@@ -1,0 +1,92 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{CoreGraphics}[2014/12/31 N4M3Z Graphics Specifications Package]
+\RequirePackage{Core}
+
+%%% +----------------------------------------------------------------------------------------------+
+%%% |                                                                                              |
+%%% | Options                                                                                      |
+%%% |                                                                                              |
+%%% +----------------------------------------------------------------------------------------------+
+\providetoggle{ignoredraft}
+
+\DeclareOption{ignoredraft} { \toggletrue{ignoredraft} }
+
+%% Fallback
+\DeclareOption*%
+{%
+  \PackageWarning{N4M3ZGraphics}{Unknown option '\CurrentOption'}
+}
+
+%% Process given options
+\ProcessOptions\relax
+
+%%% +----------------------------------------------------------------------------------------------+
+%%% |                                                                                              |
+%%% | Commands                                                                                     |
+%%% |                                                                                              |
+%%% +----------------------------------------------------------------------------------------------+
+%% Load additional packages and commands
+%% For LaTeX2e guidelines, please read LaTeX2e tabu at: http://distrib-coffee.ipsl.jussieu.fr/pub/mirrors/ctan/info/l2tabu/english/l2tabuen.pdf
+
+%% ------------------------------------------------------------------------------------------------
+%%  graphicx
+%% ------------------------------------------------------------------------------------------------
+% http://www.ctan.org/pkg/graphicx
+% Version: 1.0f, 2014, LaTeX2e
+% Load before: graphics, epsfig, trig, keyval, lscape
+% Load after: -
+% Compatibility: graphics, epsfig, trig, keyval, lscape
+% Incompatibility: -
+
+\RequirePackage{graphicx}
+
+% Graphics handling differs between pdf and dvi format
+\ifpdf
+    %% ------------------------------------------------------------------------------------------------
+    %%  epstopdf
+    %% ------------------------------------------------------------------------------------------------
+    % on-the-fly conversion of .eps to .pdf, requires graphicx to be loaded beforehand
+    % WARNING: The feature \write18 must be enabled.
+
+    % http://www.ctan.org/pkg/epstopdf-pkg
+    % Version: 2.5, 2010, LaTeX2e
+    % Load before: -
+    % Load after: -
+    % Compatibility: -
+    % Incompatibility: -
+
+    \usepackage{epstopdf}
+    \epstopdfsetup{suffix=} % no default suffix to converted image output file names
+
+    \DeclareGraphicsExtensions{.pdf,.png,.jpg,.eps}
+
+\else
+    \DeclareGraphicsExtensions{.eps}
+
+\fi
+
+% declare the path(s) where your graphic files are so you won't have to specify these with every instance of \includegraphics
+\graphicspath{ {Media/} }
+
+%% ------------------------------------------------------------------------------------------------
+%%  grffile
+%% ------------------------------------------------------------------------------------------------
+% http://www.ctan.org/pkg/grffile
+% Version: 1.16, 2012, LaTeX2e
+% Load before: -
+% Load after: graphics, graphicx
+% Compatibility: -
+% Incompatibility: -
+
+\usepackage[multidot,babel]{grffile} % allows dots in figure file names
+
+%% ------------------------------------------------------------------------------------------------
+%%  draft
+%% ------------------------------------------------------------------------------------------------
+% Override graphicx draft settings after all other graphics packages loaded
+\iftoggle{ignoredraft}%
+{%
+    \setkeys{Gin}{draft=false}
+}
+
+\endinput

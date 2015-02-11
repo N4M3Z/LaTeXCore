@@ -1,0 +1,64 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": ".",
+            "name": "",
+            "folder_exclude_patterns": [ ],
+            "file_exclude_patterns": [ ".gz" ]
+		},
+	],
+    "settings":
+    {
+        "tab_size": 4,
+        "spell_check": true,
+        "dictionary": "Packages/Language - English/en_GB.dic",
+        "build_arguments": ""
+    },
+    "options":
+    {
+        "root" : "Master.tex",
+        "pdf"  : "LaTeXCore",
+    },
+    "static_cwl":
+    [
+        "amsfonts.cwl",
+        "amsmath.cwl",
+        "amssymb.cwl",
+        "array.cwl",
+        "babel.cwl",
+        "biblatex.cwl",
+        "color.cwl",
+        "csquotes.cwl",
+        "epstopdf.cwl",
+        "fancybox.cwl",
+        "glossaries.cwl",
+        "graphicx.cwl",
+        "hyperref.cwl",
+        "ifpdf.cwl",
+        "latex-209.cwl",
+        "latex-dev.cwl",
+        "latex-document.cwl",
+        "latex-l2tabu.cwl",
+        "latex-mathsymbols.cwl",
+        "pdfpages.cwl",
+        "setspace.cwl",
+        "textcomp.cwl",
+        "todonotes.cwl",
+        "upgreek.cwl",
+        "xspace.cwl",
+        // User packages
+        "Physics.cwl"
+    ],
+    "dynamic_cwl": true,
+
+    "quick_build":
+    [
+      {
+        "name": "Default Quick Build: pdflatex",
+        "primary": true,
+        "cmds": ["pdflatex"]
+      },
+    ],
+}

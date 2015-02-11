@@ -1,0 +1,186 @@
+% N4M3ZResults.sty
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{N4M3ZProperties}[2014/06/26 N4M3Z Properties Package]
+
+% Packages
+% --------
+\RequirePackage{etoolbox}
+\RequirePackage{xparse}
+\RequirePackage{xspace}
+
+% Defaults
+% --------
+\providetoggle{standalone}
+
+\providetoggle{siunitx}
+\providetoggle{xspace}
+
+\togglefalse{standalone}
+
+\togglefalse{siunitx}
+\togglefalse{xspace}
+
+\DeclareOption{physics} { \toggletrue{physics} }
+\DeclareOption{siunitx} { \toggletrue{siunitx} }
+\DeclareOption{xspace}  { \toggletrue{xspace}  }
+
+\ProcessOptions\relax
+
+%% ================================================================================================
+\iftoggle{siunitx}
+{%
+    \RequirePackage{siunitx}
+    \sisetup%
+    {%
+      abbreviations          = true,
+      binary-units           = true,
+      per-mode               = reciprocal,
+      round-mode             = places,
+      round-precision        = 2,
+      range-units            = single,
+      range-phrase           = --,
+      free-standing-units    = true,
+      % overwrite-functions    = true,
+      space-before-unit      = true,
+      unit-optional-argument = true,
+      use-xspace             = false,
+      separate-uncertainty   = true,
+    }%
+}{%
+}%
+
+\iftoggle{xspace}
+{%
+    \RequirePackage{xspace}
+    \sisetup%
+    {%
+        use-xspace = true
+    }%
+}{%
+}%
+
+% Properties a la LISP
+% --------------------
+\def\ece#1#2{\expandafter#1\csname#2\endcsname}%
+
+% Set property
+% ------------
+% \setproperty{<atom>}{<propname>}{<value>} defines the property <propname> on the atom <atom> to have <value>.
+\def\setproperty#1#2#3{\ece\protected@edef{#1@p#2}{#3}}%
+\def\setpropertyglobal#1#2#3{\ece\protected@xdef{#1@p#2}{#3}}%
+
+% Get property
+% ------------
+% \getproperty{<atom>}{<propname>} expands to the value of the property <propname> on <atom>, or to nothing (i.e., \empty), if the property isn't present.
+\def\getproperty#1#2%
+{%
+    \expandafter\ifx\csname#1@p#2\endcsname\relax % then \empty
+    \else%
+        \csname#1@p#2\endcsname
+    \fi
+}%
+
+\DeclareDocumentCommand{\stat}  { m O{key} } {\getproperty{#1}{#2.stat}}
+\DeclareDocumentCommand{\syst}  { m O{key} } {\getproperty{#1}{#2.syst}}
+\DeclareDocumentCommand{\susr}  { m O{key} } {\getproperty{#1}{#2.susr}}
+\DeclareDocumentCommand{\unit}  { m O{key} } {\getproperty{#1}{#2.unit}}
+\DeclareDocumentCommand{\full}  { m O{key} } {\getproperty{#1}{#2.full}}
+\DeclareDocumentCommand{\val}   { m O{key} } {\getproperty{#1}{#2.val}}
+\DeclareDocumentCommand{\vals}  { m O{key} } {\getproperty{#1}{#2.vals}}
+\DeclareDocumentCommand{\valss} { m O{key} } {\getproperty{#1}{#2.valss}}
+
+\DeclareDocumentCommand{\DeclareVariable} { m }%
+{%
+    \csdef{n#1}##1{\val{#1}[##1]}%
+    \csdef{d#1}##1{\stat{#1}[##1]}%
+    \csdef{s#1}##1{\syst{#1}[##1]}%
+    \csdef{l#1}##1{\susr{#1}[##1]}%
+    \csdef{u#1}##1{\unit{#1}[##1]}%
+    \csdef{#1}##1{\full{#1}[##1]}%
+}%
+
+%                                            1                   2                   3      4 5   6   7   8
+\DeclareDocumentCommand{\DeclareProperty} { s > {\TrimSpaces} m > {\TrimSpaces} O{key} m G{} G{} G{} O{} }%
+{%
+    \ifblank{#4} { \setproperty{#2}{#3.value}{--NoValue--} }{ \setproperty{#2}{#3.value}{\num{ #4 }} }%
+    \ifblank{#5} { \setproperty{#2}{#3.stat} {--NoValue--} }{ \setproperty{#2}{#3.stat} {\num{ #5 }} }%
+    \ifblank{#6} { \setproperty{#2}{#3.syst} {--NoValue--} }{ \setproperty{#2}{#3.syst} {\num{ #6 }} }%
+    \ifblank{#7} { \setproperty{#2}{#3.susr} {--NoValue--} }{ \setproperty{#2}{#3.susr} {\num{ #7 }} }%
+
+    \ifblank{#8}%
+    {%
+        \setproperty{#2}{#3.unit} {--NoUnit--}
+    }{%
+        \setproperty{#2}{#3.unit} {\protecting{\si{#8}}}
+    }%
+
+    \setproperty{#2}{#3.val}{\protecting{\SIcommand[parse-numbers=true]{#4}{#8}}}
+    \setproperty{#2}{#3.vals}{\protecting{\SIcommand[parse-numbers=true]{#4 #5}{#8}}}
+    \setproperty{#2}{#3.valss}{\protecting{\SIcommand[parse-numbers=false]{#4 #5 #6}{#8}}}
+
+    \ifblank{#5}
+    {%
+        \ifblank{#6}
+        {%
+            \ifblank{#7}
+            {%
+                \setproperty{#2}{#3.full}{\protecting{\SIcommand[parse-numbers=false]{#4                                          }{#8}}}
+            }{%
+                \setproperty{#2}{#3.full}{\protecting{\SIcommand[parse-numbers=false]{#4                             #7 \, (lumi.)}{#8}}}
+            }%
+        }{%
+            \ifblank{#7}
+            {%
+                \setproperty{#2}{#3.full}{\protecting{\SIcommand[parse-numbers=false]{#4               #6 \, (syst.)              }{#8}}}
+            }{%
+                \setproperty{#2}{#3.full}{\protecting{\SIcommand[parse-numbers=false]{#4               #6 \, (syst.) #7 \, (lumi.)}{#8}}}
+            }%
+        }%
+    }{%
+        \ifblank{#6}
+        {%
+            \ifblank{#7}
+            {%
+                \setproperty{#2}{#3.full}{\protecting{\SIcommand[parse-numbers=false]{#4 #5                                       }{#8}}}
+            }{%
+                \setproperty{#2}{#3.full}{\protecting{\SIcommand[parse-numbers=false]{#4 #5 \, (stat.)               #7 \, (lumi.)}{#8}}}
+            }%
+        }{%
+            \ifblank{#7}
+            {%
+                \setproperty{#2}{#3.full}{\protecting{\SIcommand[parse-numbers=false]{#4 #5 \, (stat.) #6 \, (syst.)              }{#8}}}
+            }{%
+                \setproperty{#2}{#3.full}{\protecting{\SIcommand[parse-numbers=false]{#4 #5 \, (stat.) #6 \, (syst.) #7 \, (lumi.)}{#8}}}
+            }%
+        }%
+    }%
+}%
+
+\DeclareDocumentCommand{\SIcommand} { o m G{} }%
+{%
+    \ifblank{#3}%
+    {%
+        \ifblank{#1}%
+        {%
+            \num{#2}%
+        }{%
+            \num[#1]{#2}%
+        }%
+    }{%
+        \ifblank{#1}%
+        {%
+            \SI{#2}{#3}%
+        }{%
+            \SI[#1]{#2}{#3}%
+        }%
+    }%
+}%
+
+%% ==================
+%% Example properties
+%% ==================
+% Uncomment this to test an example
+% \DeclareProperty{constant} [h]   { 6.626 069 57  E-24 }{ \pm 0.000 000 29 E-34 }{}{}[\joule\second]
+% \DeclareProperty{constant} [hbar]{ 1.054 571 726 E-24 }{ \pm 0.000 000 47 E-34 }{}{}[\joule\second]
+
+\endinput
